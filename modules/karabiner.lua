@@ -4,7 +4,7 @@ hotkey.bind(hyper, "K", function()
     local configFile = os.getenv('HOME') .. '/.config/karabiner/karabiner.json'
 
     if hs.json.read(configFile) == nil then
-        hs.alert.show('配置读取失败！')
+        hs.alert.show('Failed to read config file!')
         return
     end
 
