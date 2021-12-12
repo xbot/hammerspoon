@@ -14,4 +14,5 @@ require "modules/inputstat"
 -- require "modules/dict"
 require "modules/jsonFormat"
 require "modules/karabiner"
+require "modules/omnifocus"
 
