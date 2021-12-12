@@ -14,76 +14,76 @@ local mouse = require "hs.mouse"
 -- default 0.2
 window.animationDuration = 0
 
--- left half
-hotkey.bind(hyper, "Left", function()
-  if window.focusedWindow() then
-    window.focusedWindow():moveToUnit(layout.left50)
-  else
-    alert.show("No active window")
-  end
-end)
+-- -- left half
+-- hotkey.bind(hyper, "Left", function()
+  -- if window.focusedWindow() then
+    -- window.focusedWindow():moveToUnit(layout.left50)
+  -- else
+    -- alert.show("No active window")
+  -- end
+-- end)
 
--- right half
-hotkey.bind(hyper, "Right", function()
-  window.focusedWindow():moveToUnit(layout.right50)
-end)
+-- -- right half
+-- hotkey.bind(hyper, "Right", function()
+  -- window.focusedWindow():moveToUnit(layout.right50)
+-- end)
 
--- top half
-hotkey.bind(hyper, "Up", function()
-  window.focusedWindow():moveToUnit'[0,0,100,50]'
-end)
+-- -- top half
+-- hotkey.bind(hyper, "Up", function()
+  -- window.focusedWindow():moveToUnit'[0,0,100,50]'
+-- end)
 
--- bottom half
-hotkey.bind(hyper, "Down", function()
-  window.focusedWindow():moveToUnit'[0,50,100,100]'
-end)
+-- -- bottom half
+-- hotkey.bind(hyper, "Down", function()
+  -- window.focusedWindow():moveToUnit'[0,50,100,100]'
+-- end)
 
--- left top quarter
-hotkey.bind(hyperAlt, "Left", function()
-  window.focusedWindow():moveToUnit'[0,0,50,50]'
-end)
+-- -- left top quarter
+-- hotkey.bind(hyperAlt, "Left", function()
+  -- window.focusedWindow():moveToUnit'[0,0,50,50]'
+-- end)
 
--- right bottom quarter
-hotkey.bind(hyperAlt, "Right", function()
-  window.focusedWindow():moveToUnit'[50,50,100,100]'
-end)
+-- -- right bottom quarter
+-- hotkey.bind(hyperAlt, "Right", function()
+  -- window.focusedWindow():moveToUnit'[50,50,100,100]'
+-- end)
 
--- right top quarter
-hotkey.bind(hyperAlt, "Up", function()
-  window.focusedWindow():moveToUnit'[50,0,100,50]'
-end)
+-- -- right top quarter
+-- hotkey.bind(hyperAlt, "Up", function()
+  -- window.focusedWindow():moveToUnit'[50,0,100,50]'
+-- end)
 
--- left bottom quarter
-hotkey.bind(hyperAlt, "Down", function()
-  window.focusedWindow():moveToUnit'[0,50,50,100]'
-end)
+-- -- left bottom quarter
+-- hotkey.bind(hyperAlt, "Down", function()
+  -- window.focusedWindow():moveToUnit'[0,50,50,100]'
+-- end)
 
--- full screen
-hotkey.bind(hyper, 'F', function() 
-  window.focusedWindow():toggleFullScreen()
-end)
+-- -- full screen
+-- hotkey.bind(hyper, 'F', function() 
+  -- window.focusedWindow():toggleFullScreen()
+-- end)
 
--- center window
-hotkey.bind(hyper, 'C', function() 
-  window.focusedWindow():centerOnScreen()
-end)
+-- -- center window
+-- hotkey.bind(hyper, 'C', function() 
+  -- window.focusedWindow():centerOnScreen()
+-- end)
 
--- maximize window
-hotkey.bind(hyper, 'M', function() toggle_maximize() end)
+-- -- maximize window
+-- hotkey.bind(hyper, 'M', function() toggle_maximize() end)
 
--- defines for window maximize toggler
-local frameCache = {}
--- toggle a window between its normal size, and being maximized
-function toggle_maximize()
-    local win = window.focusedWindow()
-    if frameCache[win:id()] then
-        win:setFrame(frameCache[win:id()])
-        frameCache[win:id()] = nil
-    else
-        frameCache[win:id()] = win:frame()
-        win:maximize()
-    end
-end
+-- -- defines for window maximize toggler
+-- local frameCache = {}
+-- -- toggle a window between its normal size, and being maximized
+-- function toggle_maximize()
+    -- local win = window.focusedWindow()
+    -- if frameCache[win:id()] then
+        -- win:setFrame(frameCache[win:id()])
+        -- frameCache[win:id()] = nil
+    -- else
+        -- frameCache[win:id()] = win:frame()
+        -- win:maximize()
+    -- end
+-- end
 
 -- display a keyboard hint for switching focus to each window
 hotkey.bind(hyperShift, '/', function()
@@ -97,15 +97,15 @@ hotkey.bind(hyperShift, "H", function()
   window.switcher.nextWindow()
 end)
 
--- move active window to previous monitor
-hotkey.bind(hyperShift, "Left", function()
-  window.focusedWindow():moveOneScreenWest()
-end)
+-- -- move active window to previous monitor
+-- hotkey.bind(hyperShift, "Left", function()
+  -- window.focusedWindow():moveOneScreenWest()
+-- end)
 
--- move active window to next monitor
-hotkey.bind(hyperShift, "Right", function()
-  window.focusedWindow():moveOneScreenEast()
-end)
+-- -- move active window to next monitor
+-- hotkey.bind(hyperShift, "Right", function()
+  -- window.focusedWindow():moveOneScreenEast()
+-- end)
 
 -- move cursor to previous monitor
 hotkey.bind(hyperCtrl, "Right", function ()

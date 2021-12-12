@@ -76,53 +76,6 @@ function initMenu()
         { title = "Open console", fn = function() hs.openConsole() end },
         { title = "Relaunch", fn = function() hs.relaunch() end },
         { title = "-" },
-        { title = "翻译平台：" .. config[1].dictEngine, fn = function()
-            if (hs.dialog.blockAlert("支持百度和有道翻译，确认切换？","有道翻译需先申请有道云API","确定","取消","informational") == "确定") then
-                switchDict()
-            end
-        end },
-        { title = "输入appID", fn = function()
-            if(config[1].dictEngine == '有道') then
-                local result,subText = hs.dialog.textPrompt("输入appID", "请通过有道云API获取appkey", config[1].youdaoAppid, "确定", "取消", false)
-                if result == "确定" then
-                    config[1].youdaoAppid = subText
-                    hs.json.write(config,configPath, true, true)
-                end
-            elseif(config[1].dictEngine == '百度') then
-                local result,subText = hs.dialog.textPrompt("输入appID", "百度翻译可不修改", config[1].baiduAppid, "确定", "取消", true)
-                if result == "确定" then
-                    config[1].baiduAppid = subText
-                    hs.json.write(config,configPath, true, true)
-                end
-            end
-        end },
-        { title = "输入appSecret", fn = function()
-            if(config[1].dictEngine == '有道') then
-                local result,subText = hs.dialog.textPrompt("输入appSecret", "请通过有道云API获取appSecret", config[1].youdaoAppSecret, "确定", "取消", false)
-                if result == "确定" then
-                    config[1].youdaoAppSecret = subText
-                    hs.json.write(config,configPath, true, true)
-                end
-            elseif(config[1].dictEngine == '百度') then
-                local result,subText = hs.dialog.textPrompt("输入appSecret", "百度翻译可不修改", config[1].baiduAppSecret, "确定", "取消", true)
-                if result == "确定" then
-                    config[1].baiduAppSecret = subText
-                    hs.json.write(config,configPath, true, true)
-                end
-            end
-        end },
-        { title = "-" },
-        { title = "时间同步：" .. config[1].isSyncTime, fn = function()
-            switchTime()
-        end },
-        { title = "输入开机密码", fn = function()
-            local result,subText = hs.dialog.textPrompt("输入开机密码", "时间同步操作需要开机密码", config[1].rootPassword, "确定", "取消", true)
-            if result == "确定" then
-                config[1].rootPassword = subText
-                hs.json.write(config,configPath, true, true)
-            end
-        end },
-        { title = "-" },
         { title = "屏幕取色", fn = function()
             hs.openConsole(true)
             colorDialog.show()
