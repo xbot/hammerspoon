@@ -14,6 +14,7 @@ applist = {
     {shortcut = 'C', appname = 'Visual Studio Code'},
     {shortcut = 'D', appname = 'Dash'}, {shortcut = 'E', appname = 'EuDic'},
     {shortcut = 'F', appname = 'Firefox'},
+    {shortcut = 'K', appname = 'kitty'},
     {shortcut = 'L', appname = 'Telegram'}, {shortcut = 'M', appname = 'Mail'},
     {shortcut = 'N', appname = 'Notion'},
     {shortcut = 'O', appname = 'Microsoft Outlook'},
@@ -46,10 +47,9 @@ end
 
 -- Do mappings.
 fnutils.each(applist, function(entry)
-    -- hotkey.bind({'ctrl', 'shift'}, entry.shortcut, entry.appname, function()
     hotkey.bind({'alt'}, entry.shortcut, entry.appname, function()
-        application.launchOrFocus(entry.appname)
-        -- toggle_application(applist[i].appname)
+        -- application.launchOrFocus(entry.appname)
+        toggle_application(entry.appname)
     end)
 end)
 
