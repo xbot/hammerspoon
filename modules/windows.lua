@@ -1,23 +1,49 @@
 -- window management
-local application = require "hs.application"
-local hotkey = require "hs.hotkey"
-local window = require "hs.window"
-local layout = require "hs.layout"
-local grid = require "hs.grid"
-local hints = require "hs.hints"
-local screen = require "hs.screen"
 local alert = require "hs.alert"
+local application = require "hs.application"
 local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
+local grid = require "hs.grid"
+local hints = require "hs.hints"
+local hotkey = require "hs.hotkey"
+local layout = require "hs.layout"
 local mouse = require "hs.mouse"
+local screen = require "hs.screen"
+local window = require "hs.window"
 
 -- default 0.2
 window.animationDuration = 0
 
+-- left half
+hotkey.bind(hyperCtrl, ",", function()
+    if window.focusedWindow() then
+        window.focusedWindow():moveToUnit(layout.left50)
+    else
+        alert.show("No active window")
+    end
+end)
+
+-- right half
+hotkey.bind(hyperCtrl, ".", function()
+    window.focusedWindow():moveToUnit(layout.right50)
+end)
+
+function is_screen_vertical()
+    local screen = window.focusedWindow():screen()
+
+    return hs.fnutils.contains({90, 270}, screen:rotate())
+end
+
 -- right three quarters
 hotkey.bind(hyperCtrl, "L", function()
     if window.focusedWindow() then
-        window.focusedWindow():moveToUnit(layout.right75)
+        local unit = layout.right75
+
+        if is_screen_vertical() then
+            unit = geometry.rect(0, 0, 1, 0.75)
+        end
+
+        window.focusedWindow():moveToUnit(unit)
     else
         alert.show("No active window")
     end
@@ -26,25 +52,47 @@ end)
 -- left a quarter
 hotkey.bind(hyperCtrl, "R", function()
     if window.focusedWindow() then
-        window.focusedWindow():moveToUnit(layout.left25)
+        local unit = layout.left25
+
+        if is_screen_vertical() then
+            unit = geometry.rect(0, 0.75, 1, 0.25)
+        end
+
+        window.focusedWindow():moveToUnit(unit)
     else
         alert.show("No active window")
     end
 end)
 
--- -- left half
--- hotkey.bind(hyper, "Left", function()
--- if window.focusedWindow() then
--- window.focusedWindow():moveToUnit(layout.left50)
--- else
--- alert.show("No active window")
--- end
--- end)
+-- right two thirds
+hotkey.bind(hyperCtrl, "E", function()
+    if window.focusedWindow() then
+        local unit = geometry.rect(0.33, 0, 0.66, 1)
 
--- -- right half
--- hotkey.bind(hyper, "Right", function()
--- window.focusedWindow():moveToUnit(layout.right50)
--- end)
+        if is_screen_vertical() then
+            unit = geometry.rect(0, 0, 1, 0.66)
+        end
+
+        window.focusedWindow():moveToUnit(unit)
+    else
+        alert.show("No active window")
+    end
+end)
+
+-- left a quarter
+hotkey.bind(hyperCtrl, "G", function()
+    if window.focusedWindow() then
+        local unit = geometry.rect(0, 0, 0.33, 1)
+
+        if is_screen_vertical() then
+            unit = geometry.rect(0, 0.66, 1, 0.33)
+        end
+
+        window.focusedWindow():moveToUnit(unit)
+    else
+        alert.show("No active window")
+    end
+end)
 
 -- -- top half
 -- hotkey.bind(hyper, "Up", function()
@@ -81,13 +129,13 @@ end)
 -- window.focusedWindow():toggleFullScreen()
 -- end)
 
--- -- center window
--- hotkey.bind(hyper, 'C', function() 
--- window.focusedWindow():centerOnScreen()
--- end)
+-- center window
+hotkey.bind(hyperCtrl, 'C', function() 
+    window.focusedWindow():centerOnScreen()
+end)
 
 -- maximize window
-hotkey.bind(hyper, 'M', function() toggle_maximize() end)
+hotkey.bind(hyperCtrl, 'Return', function() toggle_maximize() end)
 
 -- defines for window maximize toggler
 local frameCache = {}
@@ -129,8 +177,9 @@ hotkey.bind(hyperCtrl, "Right", function()
 end)
 
 -- move cursor to next monitor
-hotkey.bind(hyperCtrl, "Left",
-            function() focusScreen(window.focusedWindow():screen():next()) end)
+hotkey.bind(hyperCtrl, "Left", function()
+    focusScreen(window.focusedWindow():screen():next())
+end)
 
 -- Predicate that checks if a window belongs to a screen
 function isInScreen(screen, win) return win:screen() == screen end
@@ -149,32 +198,32 @@ function focusScreen(screen)
     mouse.setAbsolutePosition(pt)
 end
 
--- maximized active window and move to selected monitor
-moveto = function(win, n)
-    local screens = screen.allScreens()
-    if n > #screens then
-        alert.show("Only " .. #screens .. " monitors ")
-    else
-        local toWin = screen.allScreens()[n]:name()
-        alert.show("Move " .. win:application():name() .. " to " .. toWin)
+-- -- maximized active window and move to selected monitor
+-- moveto = function(win, n)
+    -- local screens = screen.allScreens()
+    -- if n > #screens then
+        -- alert.show("Only " .. #screens .. " monitors ")
+    -- else
+        -- local toWin = screen.allScreens()[n]:name()
+        -- alert.show("Move " .. win:application():name() .. " to " .. toWin)
 
-        layout.apply({{nil, win:title(), toWin, layout.maximized, nil, nil}})
+        -- layout.apply({{nil, win:title(), toWin, layout.maximized, nil, nil}})
 
-    end
-end
+    -- end
+-- end
 
--- move cursor to monitor 1 and maximize the window
-hotkey.bind(hyperShift, "1", function()
-    local win = window.focusedWindow()
-    moveto(win, 1)
-end)
+-- -- move cursor to monitor 1 and maximize the window
+-- hotkey.bind(hyperShift, "1", function()
+    -- local win = window.focusedWindow()
+    -- moveto(win, 1)
+-- end)
 
-hotkey.bind(hyperShift, "2", function()
-    local win = window.focusedWindow()
-    moveto(win, 2)
-end)
+-- hotkey.bind(hyperShift, "2", function()
+    -- local win = window.focusedWindow()
+    -- moveto(win, 2)
+-- end)
 
-hotkey.bind(hyperShift, "3", function()
-    local win = window.focusedWindow()
-    moveto(win, 3)
-end)
+-- hotkey.bind(hyperShift, "3", function()
+    -- local win = window.focusedWindow()
+    -- moveto(win, 3)
+-- end)

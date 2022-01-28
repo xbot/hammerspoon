@@ -15,5 +15,5 @@ require "modules/inputstat"
 require "modules/jsonFormat"
 require "modules/karabiner"
 require "modules/omnifocus"
-require "modules/cheatsheet"
+-- require "modules/cheatsheet"
 
