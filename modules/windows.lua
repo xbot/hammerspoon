@@ -67,7 +67,7 @@ end)
 -- right two thirds
 hotkey.bind(hyperCtrl, "E", function()
     if window.focusedWindow() then
-        local unit = geometry.rect(0.33, 0, 0.66, 1)
+        local unit = geometry.rect(0.34, 0, 0.66, 1)
 
         if is_screen_vertical() then
             unit = geometry.rect(0, 0, 1, 0.66)
@@ -79,13 +79,13 @@ hotkey.bind(hyperCtrl, "E", function()
     end
 end)
 
--- left a quarter
+-- left a third
 hotkey.bind(hyperCtrl, "G", function()
     if window.focusedWindow() then
-        local unit = geometry.rect(0, 0, 0.33, 1)
+        local unit = geometry.rect(0, 0, 0.34, 1)
 
         if is_screen_vertical() then
-            unit = geometry.rect(0, 0.66, 1, 0.33)
+            unit = geometry.rect(0, 0.66, 1, 0.34)
         end
 
         window.focusedWindow():moveToUnit(unit)
@@ -158,18 +158,18 @@ hotkey.bind(hyperShift, '/', function()
     -- hints.windowHints(hs.window.focusedWindow():application():allWindows())
 end)
 
--- switch active window
-hotkey.bind(hyperShift, "H", function() window.switcher.nextWindow() end)
+-- -- switch active window
+-- hotkey.bind(hyperShift, "H", function() window.switcher.nextWindow() end)
 
--- -- move active window to previous monitor
--- hotkey.bind(hyperShift, "Left", function()
--- window.focusedWindow():moveOneScreenWest()
--- end)
+-- move active window to previous monitor
+hotkey.bind(hyper, "Left", function()
+    window.focusedWindow():moveOneScreenWest()
+end)
 
--- -- move active window to next monitor
--- hotkey.bind(hyperShift, "Right", function()
--- window.focusedWindow():moveOneScreenEast()
--- end)
+-- move active window to next monitor
+hotkey.bind(hyper, "Right", function()
+    window.focusedWindow():moveOneScreenEast()
+end)
 
 -- move cursor to previous monitor
 hotkey.bind(hyperCtrl, "Right", function()
@@ -195,7 +195,7 @@ function focusScreen(screen)
 
     -- move cursor to center of screen
     local pt = geometry.rectMidPoint(screen:fullFrame())
-    mouse.setAbsolutePosition(pt)
+    mouse.absolutePosition(pt)
 end
 
 -- -- maximized active window and move to selected monitor
