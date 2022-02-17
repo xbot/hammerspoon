@@ -5,6 +5,10 @@ local application = require "hs.application"
 local appfinder = require "hs.appfinder"
 local fnutils = require "hs.fnutils"
 
+hs.application.enableSpotlightForNameSearches(true)
+
+local logger = hs.logger.new('Launcher', 'debug')
+
 grid.setMargins({0, 0})
 
 applist = {
@@ -60,12 +64,13 @@ end)
 -- Toggle an application between being the frontmost app, and being hidden
 function toggle_application(_app)
     local app = appfinder.appFromName(_app)
-    if not app then
+
+    if not app or not app:mainWindow() then
         application.launchOrFocus(_app)
         return
-    end
-    local mainwin = app:mainWindow()
-    if mainwin then
+    else
+        local mainwin = app:mainWindow()
+
         if mainwin == window.focusedWindow() then
             mainwin:application():hide()
         else
