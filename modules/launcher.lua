@@ -62,11 +62,11 @@ fnutils.each(applist, function(entry)
 end)
 
 -- Toggle an application between being the frontmost app, and being hidden
-function toggle_application(_app)
-    local app = appfinder.appFromName(_app)
+function toggle_application(app_name)
+    local app = appfinder.appFromName(app_name)
 
     if not app or not app:mainWindow() then
-        application.launchOrFocus(_app)
+        application.launchOrFocus(app_name)
         return
     else
         local mainwin = app:mainWindow()
