@@ -28,16 +28,16 @@ applist = {
     {shortcut = 'P', appname = 'PhpStorm'},
     {shortcut = 'Q', appname = 'Activity Monitor'},
     {shortcut = 'S', appname = 'Slack'},
-    {shortcut = 'T', appname = 'Tweetbot'},
     {shortcut = 'V', appname = 'MacVim'},
     {shortcut = 'W', appname = 'Workflowy'}
 }
+
+local hostnames = hs.host.names()
 
 --[[
    [ Map key B to the default browser.
    ]]
 local defaultBrowser = nil
-local hostnames = hs.host.names()
 
 for i = 1, #hostnames do
     if string.find(string.lower(hostnames[i]), 'imac') ~= nil then
@@ -51,6 +51,25 @@ end
 
 if defaultBrowser ~= nil then
     table.insert(applist, {shortcut = 'B', appname = defaultBrowser})
+end
+
+--[[
+   [ Map key T to the default twitter client.
+   ]]
+local defaultTwitterClient = nil
+
+for i = 1, #hostnames do
+    if string.find(string.lower(hostnames[i]), 'imac') ~= nil then
+        defaultTwitterClient = 'Twitter'
+        break
+    elseif string.find(string.lower(hostnames[i]), 'mbp') ~= nil then
+        defaultTwitterClient = 'Tweetbot'
+        break
+    end
+end
+
+if defaultTwitterClient ~= nil then
+    table.insert(applist, {shortcut = 'T', appname = defaultTwitterClient})
 end
 
 -- Do mappings.
