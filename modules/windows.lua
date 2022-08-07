@@ -227,3 +227,13 @@ end
     -- local win = window.focusedWindow()
     -- moveto(win, 3)
 -- end)
+
+hotkey.bind(hyperCtrl, "X", function()
+    if window.focusedWindow() then
+        local size = geometry.size(1280, 720)
+
+        window.focusedWindow():setSize(size)
+    else
+        alert.show("No active window")
+    end
+end)

@@ -8,6 +8,10 @@ spoon.SendToOmniFocus:registerApplication('Brave Browser', {
     apptype = "chromeapp",
     itemname = "tab"
 })
+spoon.SendToOmniFocus:registerApplication('Vivaldi', {
+    apptype = "chromeapp",
+    itemname = "tab"
+})
 
 local hotkey = require "hs.hotkey"
 

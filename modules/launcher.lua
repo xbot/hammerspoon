@@ -19,17 +19,20 @@ applist = {
     {shortcut = 'D', appname = 'Dash'},
     {shortcut = 'E', appname = 'EuDic'},
     {shortcut = 'F', appname = 'Firefox'},
+    {shortcut = 'G', appname = 'Telegram'},
+    {shortcut = 'I', appname = 'Anki'},
     {shortcut = 'J', appname = 'Safari'},
     {shortcut = 'K', appname = 'kitty'},
-    {shortcut = 'L', appname = 'Telegram'},
-    {shortcut = 'M', appname = 'Mail'},
+    {shortcut = 'L', appname = 'Logseq'},
+    {shortcut = 'M', appname = 'Spark'},
     {shortcut = 'N', appname = 'Notion'},
     {shortcut = 'O', appname = 'Microsoft Outlook'},
     {shortcut = 'P', appname = 'PhpStorm'},
     {shortcut = 'Q', appname = 'Activity Monitor'},
     {shortcut = 'S', appname = 'Slack'},
-    {shortcut = 'V', appname = 'MacVim'},
-    {shortcut = 'W', appname = 'Workflowy'}
+    {shortcut = 'V', appname = 'Vivaldi'},
+    {shortcut = 'W', appname = 'Workflowy'},
+    {shortcut = 'Z', appname = 'MacVim'}
 }
 
 local hostnames = hs.host.names()
@@ -44,6 +47,9 @@ for i = 1, #hostnames do
         defaultBrowser = 'Google Chrome'
         break
     elseif string.find(string.lower(hostnames[i]), 'mbp') ~= nil then
+        defaultBrowser = 'Brave Browser'
+        break
+    elseif string.find(string.lower(hostnames[i]), 'air') ~= nil then
         defaultBrowser = 'Brave Browser'
         break
     end
@@ -64,6 +70,9 @@ for i = 1, #hostnames do
         break
     elseif string.find(string.lower(hostnames[i]), 'mbp') ~= nil then
         defaultTwitterClient = 'Tweetbot'
+        break
+    elseif string.find(string.lower(hostnames[i]), 'air') ~= nil then
+        defaultTwitterClient = 'Twitter'
         break
     end
 end
