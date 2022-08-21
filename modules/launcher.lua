@@ -11,7 +11,7 @@ local logger = hs.logger.new('Launcher', 'debug')
 
 grid.setMargins({0, 0})
 
-applist = {
+local applist = {
     {shortcut = '1', appname = 'OmniFocus'},
     {shortcut = '2', appname = 'flomo'},
     {shortcut = 'A', appname = 'Sequel Ace'},
@@ -66,9 +66,6 @@ local defaultTwitterClient = nil
 
 for i = 1, #hostnames do
     if string.find(string.lower(hostnames[i]), 'imac') ~= nil then
-        defaultTwitterClient = 'Twitter'
-        break
-    elseif string.find(string.lower(hostnames[i]), 'mbp') ~= nil then
         defaultTwitterClient = 'Tweetbot'
         break
     elseif string.find(string.lower(hostnames[i]), 'air') ~= nil then

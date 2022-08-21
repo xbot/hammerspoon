@@ -28,7 +28,7 @@ hotkey.bind(hyperCtrl, ".", function()
     window.focusedWindow():moveToUnit(layout.right50)
 end)
 
-function is_screen_vertical()
+local function is_screen_vertical()
     local screen = window.focusedWindow():screen()
 
     return hs.fnutils.contains({90, 270}, screen:rotate())

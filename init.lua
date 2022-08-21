@@ -1,6 +1,12 @@
 hs.configdir = os.getenv('HOME') .. '/.hammerspoon'
 package.path = hs.configdir .. '/?.lua;' .. hs.configdir .. '/?/init.lua;' .. hs.configdir .. '/Spoons/?.spoon/init.lua;' .. package.path
 
+-- Generate annotations for lua-language-server
+hs.loadSpoon('EmmyLua')
+
+-- Install CLI commands
+hs.ipc.cliInstall()
+
 require "modules/reload"
 require "modules/commons"
 require "modules/hotkey"
