@@ -148,6 +148,10 @@
     "text" : "\/**   \n* @Title: ${file_name} \n* @Package ${package_name} \n* @Description: ${todo}(用一句话描述该文件做什么) \n* @author sugood\n* @date ${date} ${time} \n* @version V1.0   \n*\/"
   },
   {
+    "subText" : "https:\/\/github.com\/sugood\/hammerspoon.git",
+    "text" : "https:\/\/github.com\/sugood\/hammerspoon.git"
+  },
+  {
     "subText" : "ins|brew install node|安装node",
     "text" : "brew install node"
   },

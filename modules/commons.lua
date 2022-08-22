@@ -26,34 +26,6 @@ function copyFile(source,destination)
     destinationfile:close()
 end
 
-function switchDict()
-    if config[1].dictEngine == '百度' then
-        config[1].dictEngine = '有道'
-    else
-        config[1].dictEngine = '百度'
-    end
-    hs.json.write(config,configPath, true, true)
-    hs.reload()
-end
-
-function switchTime()
-    if config[1].isSyncTime == 'on' then
-        config[1].isSyncTime = 'off'
-    else
-        if(stringIsEmpty(config[1].rootPassword)) then
-            local result,subText = hs.dialog.textPrompt("输入开机密码", "时间同步操作需要开机密码", '', "确定", "取消", true)
-            if result == "确定" and stringIsEmpty(subText) == false then
-                config[1].rootPassword = subText
-                config[1].isSyncTime = 'on'
-            end
-        else
-            config[1].isSyncTime = 'on'
-        end
-    end
-    hs.json.write(config,configPath, true, true)
-    hs.reload()
-end
-
 function switchCaffeine()
     if config[1].caffeine == 'on' then
         config[1].caffeine = 'off'
@@ -64,11 +36,23 @@ function switchCaffeine()
     hs.reload()
 end
 
+function openColorDialog()
+    hs.openConsole(true)
+    colorDialog.show()
+    colorDialog.mode("RGB")
+    colorDialog.callback(function(a,b)
+        if b then
+            hs.closeConsole()
+        end
+    end)
+    hs.closeConsole()
+end
+
 --设置全局菜单栏
 function initMenu()
     macMenubar = hs.menubar.new()
     macMenubar:setTitle("")
-    macMenubar:setIcon()
+    macMenubar:setIcon("~/.hammerspoon/icon/input_u.pdf")
     macMenubar:setMenu( {
         { title = "Reload config", fn = function()
             hs.reload()
@@ -77,31 +61,15 @@ function initMenu()
         { title = "Relaunch", fn = function() hs.relaunch() end },
         { title = "-" },
         { title = "屏幕取色", fn = function()
-            hs.openConsole(true)
-            colorDialog.show()
-            colorDialog.mode("RGB")
-            colorDialog.callback(function(a,b)
-                if b then
-                    hs.closeConsole()
-                end
-            end)
-            hs.closeConsole()
+            openColorDialog()
         end },
-        { title = "-" },
         { title = "咖啡因：" .. config[1].caffeine, fn = function()
             switchCaffeine()
         end },
         { title = "-" },
-        { title = "打开键盘偏好设置", fn = function() hs.osascript.applescript([[
-            tell application "System Preferences"
-            reveal anchor "InputSources" of pane "com.apple.preference.keyboard"
-            activate
-            end tell ]]
-        ) end },
-        { title = "-" },
         { title = "关于", fn = function()
             if (hs.dialog.blockAlert("当前版本："..version,"整理了一些能够提高效率的脚本，打开主页查看详细说明。","确定","取消","informational") == "确定") then
-                hs.urlevent.openURL("https://github.com/sugood/hammerspoon")
+                hs.urlevent.openURL("https://github.com/xbot/hammerspoon")
             end
         end },
     })
@@ -202,14 +170,4 @@ function SubStringGetByteCount(str, index)
         byteCount = 4
     end
     return byteCount;
-end
-
---判断是否复制成功
-function isCopySuccess()
-    local num = hs.pasteboard.changeCount()
-    print("复制前数量："..num)
-    hs.eventtap.keyStroke({ "cmd" }, "C")
-    local numAfter = hs.pasteboard.changeCount()
-    print("复制后数量："..numAfter)
-    return numAfter > num
 end

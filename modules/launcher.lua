@@ -11,6 +11,26 @@ local logger = hs.logger.new('Launcher', 'debug')
 
 grid.setMargins({0, 0})
 
+-- Toggle an application between being the frontmost app, and being hidden
+local function toggle_application(app_name)
+    local app = appfinder.appFromName(app_name)
+
+    if not app or not app:mainWindow() then
+        application.launchOrFocus(app_name)
+        return
+    else
+        local mainwin = app:mainWindow()
+
+        if mainwin == window.focusedWindow() then
+            mainwin:application():hide()
+        else
+            mainwin:application():activate(true)
+            mainwin:application():unhide()
+            mainwin:focus()
+        end
+    end
+end
+
 local applist = {
     {shortcut = '1', appname = 'OmniFocus'},
     {shortcut = '2', appname = 'flomo'},
@@ -35,24 +55,17 @@ local applist = {
     {shortcut = 'Z', appname = 'MacVim'}
 }
 
-local hostnames = hs.host.names()
+local machine_name = hs.host.localizedName()
 
 --[[
    [ Map key B to the default browser.
    ]]
 local defaultBrowser = nil
 
-for i = 1, #hostnames do
-    if string.find(string.lower(hostnames[i]), 'imac') ~= nil then
-        defaultBrowser = 'Google Chrome'
-        break
-    elseif string.find(string.lower(hostnames[i]), 'mbp') ~= nil then
-        defaultBrowser = 'Brave Browser'
-        break
-    elseif string.find(string.lower(hostnames[i]), 'air') ~= nil then
-        defaultBrowser = 'Brave Browser'
-        break
-    end
+if machine_name == 'MacBook Air' then
+    defaultBrowser = 'Brave Browser'
+else
+    defaultBrowser = 'Google Chrome'
 end
 
 if defaultBrowser ~= nil then
@@ -64,14 +77,10 @@ end
    ]]
 local defaultTwitterClient = nil
 
-for i = 1, #hostnames do
-    if string.find(string.lower(hostnames[i]), 'imac') ~= nil then
-        defaultTwitterClient = 'Tweetbot'
-        break
-    elseif string.find(string.lower(hostnames[i]), 'air') ~= nil then
-        defaultTwitterClient = 'Twitter'
-        break
-    end
+if machine_name == 'MacBook Air' then
+    defaultTwitterClient = 'Tweetbot'
+else
+    defaultTwitterClient = 'Tweetbot'
 end
 
 if defaultTwitterClient ~= nil then
@@ -85,23 +94,3 @@ fnutils.each(applist, function(entry)
         toggle_application(entry.appname)
     end)
 end)
-
--- Toggle an application between being the frontmost app, and being hidden
-function toggle_application(app_name)
-    local app = appfinder.appFromName(app_name)
-
-    if not app or not app:mainWindow() then
-        application.launchOrFocus(app_name)
-        return
-    else
-        local mainwin = app:mainWindow()
-
-        if mainwin == window.focusedWindow() then
-            mainwin:application():hide()
-        else
-            mainwin:application():activate(true)
-            mainwin:application():unhide()
-            mainwin:focus()
-        end
-    end
-end

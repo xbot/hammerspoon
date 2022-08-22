@@ -3,19 +3,18 @@
 ## 使用方法
 
 1. 安装 [Hammerspoon](http://www.hammerspoon.org/)
-2. `git clone https://github.com/sugood/hammerspoon.git ~/.hammerspoon`
-3.  [详细说明](https://blog.csdn.net/sugoods/article/details/108984326)
+2. `git clone https://github.com/xbot/hammerspoon.git ~/.hammerspoon`
 
 ## 快捷键图标
-|           |  键位           |
-| --------- | -------------- |
-| <kbd>⇧</kbd> | Shift       |
-| <kbd>⌃</kbd> | Control   	 |
-| <kbd>⌥</kbd> | Option 		 |
-| <kbd>⌘</kbd> | Command   	 |
+|              | 键位           |
+| ---------    | -------------- |
+| <kbd>⇧</kbd> | Shift          |
+| <kbd>⌃</kbd> | Control        |
+| <kbd>⌥</kbd> | Option         |
+| <kbd>⌘</kbd> | Command        |
 
 ## 代码参考
-https://github.com/greyby/hammerspoon
+https://github.com/sugood/hammerspoon
 
 ## 语言切换
 
@@ -87,18 +86,6 @@ https://github.com/greyby/hammerspoon
 
 * <kbd>⌥</kbd><kbd>⌘</kbd> + <kbd>G</kbd> JSON格式化
 
-### 自动同步时间
-
-* <kbd>⌥</kbd><kbd>⌘</kbd> + <kbd>T</kbd> 自动同步时间
-
-需要安装expect，并设置登录密码
-
-### 翻译
-
-* <kbd>⌥</kbd><kbd>⌘</kbd> + <kbd>F</kbd> 翻译
-
-支持百度和有道翻译API。百度翻译可直接使用。有道翻译需要先申请有道翻译API并配置appKey和appSecret
-
 ### 屏幕取色功能
 
 菜单栏点击屏幕取色，出现取色界面后点击颜色拾取器，就可以获取当前屏幕鼠标所在位置的颜色值
@@ -106,7 +93,3 @@ https://github.com/greyby/hammerspoon
 ### 咖啡因
 
 菜单栏点击 咖啡因打开系统永不休眠功能，再点击一次就能关闭
-
-### 状态栏显示输入法状态
-
-可显示大小写状态，输入法状态，中英文状态。目前仅测试过搜狗输入法
