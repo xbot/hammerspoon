@@ -3,12 +3,15 @@
 --- Created by sugood(https://github.com/sugood).
 --- DateTime: 2020/10/24 14:13
 ---
+JsonParser = require("hs.json")
+Pasteboard = require("hs.pasteboard")
 local console = require("hs.console")
-version = "v0.1.2"
-configPath= "~/.hammerspoon/data/config.json"
-initConfigPath= "~/.hammerspoon/data/initConfig.json"
-config = {}
-colorDialog = hs.dialog.color
+
+ColorDialog    = hs.dialog.color
+Config         = {}
+ConfigPath     = "~/.hammerspoon/data/Config.json"
+InitConfigPath = "~/.hammerspoon/data/initConfig.json"
+Version        = "v0.1.2"
 
 --检查文件是否存在
 function checkFileExist(path)
@@ -27,25 +30,34 @@ function copyFile(source,destination)
 end
 
 function switchCaffeine()
-    if config[1].caffeine == 'on' then
-        config[1].caffeine = 'off'
+    if Config[1].caffeine == 'on' then
+        Config[1].caffeine = 'off'
     else
-        config[1].caffeine = 'on'
+        Config[1].caffeine = 'on'
     end
-    hs.json.write(config,configPath, true, true)
+    hs.json.write(Config,ConfigPath, true, true)
     hs.reload()
 end
 
 function openColorDialog()
     hs.openConsole(true)
-    colorDialog.show()
-    colorDialog.mode("RGB")
-    colorDialog.callback(function(a,b)
+    ColorDialog.show()
+    ColorDialog.mode("RGB")
+    ColorDialog.callback(function(a,b)
         if b then
             hs.closeConsole()
         end
     end)
     hs.closeConsole()
+end
+
+function formatJsonInClipboard()
+    local pasteboard_content = Pasteboard.getContents()
+    local decoded_table = JsonParser.decode(pasteboard_content)
+    if decoded_table == nil then
+        hs.alert("No valid JSON string found.")
+    end
+    Pasteboard.setContents(JsonParser.encode(decoded_table, true))
 end
 
 --设置全局菜单栏
@@ -54,7 +66,7 @@ function initMenu()
     macMenubar:setTitle("")
     macMenubar:setIcon("~/.hammerspoon/icon/input_u.pdf")
     macMenubar:setMenu( {
-        { title = "Reload config", fn = function()
+        { title = "Reload Config", fn = function()
             hs.reload()
         end },
         { title = "Open console", fn = function() hs.openConsole() end },
@@ -63,12 +75,15 @@ function initMenu()
         { title = "屏幕取色", fn = function()
             openColorDialog()
         end },
-        { title = "咖啡因：" .. config[1].caffeine, fn = function()
+        { title = "咖啡因：" .. Config[1].caffeine, fn = function()
             switchCaffeine()
+        end },
+        { title = "格式化剪贴板 Json", fn = function()
+            formatJsonInClipboard()
         end },
         { title = "-" },
         { title = "关于", fn = function()
-            if (hs.dialog.blockAlert("当前版本："..version,"整理了一些能够提高效率的脚本，打开主页查看详细说明。","确定","取消","informational") == "确定") then
+            if (hs.dialog.blockAlert("当前版本："..Version,"整理了一些能够提高效率的脚本，打开主页查看详细说明。","确定","取消","informational") == "确定") then
                 hs.urlevent.openURL("https://github.com/xbot/hammerspoon")
             end
         end },
@@ -77,16 +92,16 @@ end
 
 function initData()
     --第一次安装需要复制一个配置文件。以后更新则不会修改用户配置文件，防止被覆盖
-    if(checkFileExist(configPath) == false) then
+    if(checkFileExist(ConfigPath) == false) then
         print("初始化配置文件")
         --获取绝对路径，io.open只支持绝对路径
-        local source = hs.fs.pathToAbsolute(initConfigPath)
-        local destination = string.gsub(source, "initConfig.json$", "config.json")
+        local source = hs.fs.pathToAbsolute(InitConfigPath)
+        local destination = string.gsub(source, "initConfig.json$", "Config.json")
         copyFile(source,destination)
     end
 
-    if hs.json.read(configPath) ~= nil then
-        config = hs.json.read(configPath)
+    if hs.json.read(ConfigPath) ~= nil then
+        Config = hs.json.read(ConfigPath)
     end
     initMenu()
     -- 修改全局alert样式
@@ -96,7 +111,7 @@ function initData()
     --清空打印信息
     console.clearConsole()
     --
-    colorDialog.mode("RGB")
+    ColorDialog.mode("RGB")
 end
 
 initData()
