@@ -12,8 +12,29 @@ local logger = hs.logger.new('Launcher', 'debug')
 grid.setMargins({0, 0})
 
 -- Toggle an application between being the frontmost app, and being hidden
-local function toggle_application(app_name)
-    local app = appfinder.appFromName(app_name)
+local function toggle_application(app_names)
+    local app      = nil
+    local app_name = nil
+
+    if type(app_names) == "table" then
+        for i=0, #app_names do
+            app = appfinder.appFromName(app_names[i])
+            if app ~= nil then
+                app_name = app_names[i]
+                break
+            end
+        end
+
+        if not app_name then
+            app_name = app_names[0]
+        end
+    elseif type(app_names) == "string" then
+        app = appfinder.appFromName(app_names)
+        app_name = app_names
+    else
+        hs.alert.show("Only string or list is accepted for App names.")
+        return
+    end
 
     if not app or not app:mainWindow() then
         application.launchOrFocus(app_name)
@@ -32,27 +53,27 @@ local function toggle_application(app_name)
 end
 
 local applist = {
-    {shortcut = '1', appname = 'OmniFocus'},
-    {shortcut = '2', appname = 'flomo'},
-    {shortcut = 'A', appname = 'Sequel Ace'},
-    {shortcut = 'C', appname = 'Visual Studio Code'},
-    {shortcut = 'D', appname = 'Dash'},
-    {shortcut = 'E', appname = 'EuDic'},
-    {shortcut = 'F', appname = 'Firefox'},
-    {shortcut = 'G', appname = 'Telegram'},
-    {shortcut = 'I', appname = 'Anki'},
-    {shortcut = 'J', appname = 'Safari'},
-    {shortcut = 'K', appname = 'kitty'},
-    {shortcut = 'L', appname = 'Logseq'},
-    {shortcut = 'M', appname = 'Spark'},
-    {shortcut = 'N', appname = 'Notion'},
-    {shortcut = 'O', appname = 'Microsoft Outlook'},
-    {shortcut = 'P', appname = 'PhpStorm'},
-    {shortcut = 'Q', appname = 'Activity Monitor'},
-    {shortcut = 'S', appname = 'Slack'},
-    {shortcut = 'V', appname = 'Vivaldi'},
-    {shortcut = 'W', appname = 'Workflowy'},
-    {shortcut = 'Z', appname = 'MacVim'}
+    { shortcut = '1', appname = 'OmniFocus' },
+    { shortcut = '2', appname = 'flomo' },
+    { shortcut = 'A', appname = 'Sequel Ace' },
+    { shortcut = 'C', appname = 'Visual Studio Code' },
+    { shortcut = 'D', appname = 'Dash' },
+    { shortcut = 'E', appname = 'EuDic' },
+    { shortcut = 'F', appname = 'Firefox' },
+    { shortcut = 'G', appname = 'Telegram' },
+    { shortcut = 'I', appname = 'Anki' },
+    { shortcut = 'J', appname = 'Safari' },
+    { shortcut = 'K', appname = 'kitty' },
+    { shortcut = 'L', appname = 'Logseq' },
+    { shortcut = 'M', appname = { 'Spark', 'Mail' } },
+    { shortcut = 'N', appname = 'Notion' },
+    { shortcut = 'O', appname = 'Microsoft Outlook' },
+    { shortcut = 'P', appname = 'PhpStorm' },
+    { shortcut = 'Q', appname = 'Activity Monitor' },
+    { shortcut = 'S', appname = 'Slack' },
+    { shortcut = 'V', appname = 'Vivaldi' },
+    { shortcut = 'W', appname = 'Workflowy' },
+    { shortcut = 'Z', appname = 'MacVim' },
 }
 
 local machine_name = hs.host.localizedName()
