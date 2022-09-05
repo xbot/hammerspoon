@@ -1,23 +1,23 @@
-local hotkey = require "hs.hotkey"
-local grid = require "hs.grid"
-local window = require "hs.window"
-local application = require "hs.application"
-local appfinder = require "hs.appfinder"
-local fnutils = require "hs.fnutils"
+local hotkey = require('hs.hotkey')
+local grid = require('hs.grid')
+local window = require('hs.window')
+local application = require('hs.application')
+local appfinder = require('hs.appfinder')
+local fnutils = require('hs.fnutils')
 
 hs.application.enableSpotlightForNameSearches(true)
 
 local logger = hs.logger.new('Launcher', 'debug')
 
-grid.setMargins({0, 0})
+grid.setMargins({ 0, 0 })
 
 -- Toggle an application between being the frontmost app, and being hidden
 local function toggle_application(app_names)
-    local app      = nil
+    local app = nil
     local app_name = nil
 
-    if type(app_names) == "table" then
-        for i=0, #app_names do
+    if type(app_names) == 'table' then
+        for i = 0, #app_names do
             app = appfinder.appFromName(app_names[i])
             if app ~= nil then
                 app_name = app_names[i]
@@ -28,11 +28,11 @@ local function toggle_application(app_names)
         if not app_name then
             app_name = app_names[0]
         end
-    elseif type(app_names) == "string" then
+    elseif type(app_names) == 'string' then
         app = appfinder.appFromName(app_names)
         app_name = app_names
     else
-        hs.alert.show("Only string or list is accepted for App names.")
+        hs.alert.show('Only string or list is accepted for App names.')
         return
     end
 
@@ -90,7 +90,7 @@ else
 end
 
 if defaultBrowser ~= nil then
-    table.insert(applist, {shortcut = 'B', appname = defaultBrowser})
+    table.insert(applist, { shortcut = 'B', appname = defaultBrowser })
 end
 
 --[[
@@ -105,12 +105,12 @@ else
 end
 
 if defaultTwitterClient ~= nil then
-    table.insert(applist, {shortcut = 'T', appname = defaultTwitterClient})
+    table.insert(applist, { shortcut = 'T', appname = defaultTwitterClient })
 end
 
 -- Do mappings.
 fnutils.each(applist, function(entry)
-    hotkey.bind({'alt'}, entry.shortcut, entry.appname, function()
+    hotkey.bind({ 'alt' }, entry.shortcut, entry.appname, function()
         -- application.launchOrFocus(entry.appname)
         toggle_application(entry.appname)
     end)

@@ -1,26 +1,26 @@
 hs.loadSpoon('SendToOmniFocus')
 
 spoon.SendToOmniFocus:bindHotkeys({
-    send_to_omnifocus = {{'ctrl', 'alt', 'cmd'}, 'O'}
+    send_to_omnifocus = { { 'ctrl', 'alt', 'cmd' }, 'O' },
 })
 
 spoon.SendToOmniFocus:registerApplication('Brave Browser', {
-    apptype = "chromeapp",
-    itemname = "tab"
+    apptype = 'chromeapp',
+    itemname = 'tab',
 })
 spoon.SendToOmniFocus:registerApplication('Vivaldi', {
-    apptype = "chromeapp",
-    itemname = "tab"
+    apptype = 'chromeapp',
+    itemname = 'tab',
 })
 
-local hotkey = require "hs.hotkey"
+local hotkey = require('hs.hotkey')
 
 -- Press ctrl+opt+O to format Jira ticket title
-hotkey.bind(hyperCtrl, "O", function()
+hotkey.bind(hyperCtrl, 'O', function()
     local selectedText = hs.uielement.focusedElement():selectedText()
 
     if selectedText == nil then
-        hs.alert.show("No text selected")
+        hs.alert.show('No text selected')
         return
     end
 
@@ -30,7 +30,7 @@ hotkey.bind(hyperCtrl, "O", function()
         local ticketNumber = string.match(selectedText, '^Review:%s%[(DEV%-%d+)%]%s.*%s%-%sJira$')
         local ticketTitle = string.match(selectedText, '^Review:%s%[DEV%-%d+%]%s(.*)%s%-%sJira$')
 
-        formattedText = ticketNumber .. ' ' .. ticketTitle;
+        formattedText = ticketNumber .. ' ' .. ticketTitle
     elseif string.match(selectedText, '^Review:%s.*$') then
         formattedText = string.gsub(selectedText, '^Review:%s', '')
     else
@@ -39,5 +39,5 @@ hotkey.bind(hyperCtrl, "O", function()
     end
 
     hs.pasteboard.setContents(formattedText)
-    hs.eventtap.keyStroke({"cmd"}, "v")
+    hs.eventtap.keyStroke({ 'cmd' }, 'v')
 end)

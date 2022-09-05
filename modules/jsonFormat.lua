@@ -7,7 +7,6 @@
 --
 
 local function generateHtml()
-
     local html = [[
 <!DOCTYPE html>
 <html>
@@ -153,7 +152,6 @@ local function generateHtml()
     return html
 end
 
-
 --- KSheet:hide()
 --- Method
 --- Hide the cheatsheet view.
@@ -165,14 +163,14 @@ function init()
     local cscreen = hs.screen.mainScreen()
     local cres = cscreen:fullFrame()
     sheetView = hs.webview.newBrowser({
-        x = cres.x+cres.w*0.15/2,
-        y = cres.y+cres.h*0.25/2,
-        w = cres.w*0.85,
-        h = cres.h*0.75
+        x = cres.x + cres.w * 0.15 / 2,
+        y = cres.y + cres.h * 0.25 / 2,
+        w = cres.w * 0.85,
+        h = cres.h * 0.75,
     })
-    sheetView:windowTitle("CheatSheets")
-    sheetView:windowStyle("utility")
-    sheetView:titleVisibility("hidden")
+    sheetView:windowTitle('CheatSheets')
+    sheetView:windowStyle('utility')
+    sheetView:titleVisibility('hidden')
     sheetView:allowGestures(true)
     sheetView:allowNewWindows(false)
     sheetView:allowTextEntry(true)
@@ -188,7 +186,7 @@ end
 --- Show current application's keybindings in a view.
 function show(time)
     local webcontent = generateHtml()
-    sheetView:html(webcontent, "http://localhost")
+    sheetView:html(webcontent, 'http://localhost')
     sheetView:show(time)
 end
 
@@ -203,6 +201,6 @@ end
 init()
 
 -- 添加片段（按下快捷键时做一个复制操作，并记录复制的内容到片段列表中）
-hs.hotkey.bind(hyperCmd, "G", function ()
+hs.hotkey.bind(hyperCmd, 'G', function()
     toggle()
 end)

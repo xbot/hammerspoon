@@ -1,6 +1,6 @@
-local hotkey = require "hs.hotkey"
+local hotkey = require('hs.hotkey')
 
-hotkey.bind(hyper, "K", function()
+hotkey.bind(hyper, 'K', function()
     local configFile = os.getenv('HOME') .. '/.config/karabiner/karabiner.json'
 
     if hs.json.read(configFile) == nil then
@@ -21,7 +21,9 @@ hotkey.bind(hyper, "K", function()
 
     local switchToIndex = selectedIndex + 1
 
-    if switchToIndex > #profiles then switchToIndex = 1 end
+    if switchToIndex > #profiles then
+        switchToIndex = 1
+    end
 
     profiles[switchToIndex]['selected'] = true
     profiles[selectedIndex]['selected'] = false
