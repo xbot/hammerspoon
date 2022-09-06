@@ -17,7 +17,7 @@ local function toggle_application(app_names)
     local app_name = nil
 
     if type(app_names) == 'table' then
-        for i = 0, #app_names do
+        for i = 1, #app_names do
             app = appfinder.appFromName(app_names[i])
             if app ~= nil then
                 app_name = app_names[i]
@@ -26,7 +26,7 @@ local function toggle_application(app_names)
         end
 
         if not app_name then
-            app_name = app_names[0]
+            app_name = app_names[1]
         end
     elseif type(app_names) == 'string' then
         app = appfinder.appFromName(app_names)
