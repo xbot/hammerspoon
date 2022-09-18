@@ -54,8 +54,9 @@ end
 
 local applist = {
     { shortcut = '1', appname = 'OmniFocus' },
-    { shortcut = '2', appname = 'flomo' },
-    { shortcut = 'A', appname = 'Sequel Ace' },
+    { shortcut = '2', appname = 'Google Keep' },
+    { shortcut = '3', appname = 'Sequel Ace' },
+    { shortcut = 'A', appname = 'Arc' },
     { shortcut = 'C', appname = 'Visual Studio Code' },
     { shortcut = 'D', appname = 'Dash' },
     { shortcut = 'E', appname = 'EuDic' },
@@ -65,7 +66,7 @@ local applist = {
     { shortcut = 'J', appname = 'Safari' },
     { shortcut = 'K', appname = 'kitty' },
     { shortcut = 'L', appname = 'Logseq' },
-    { shortcut = 'M', appname = { 'Spark', 'Mail' } },
+    { shortcut = 'M', appname = { 'Mail', 'Spark' } },
     { shortcut = 'N', appname = 'Notion' },
     { shortcut = 'O', appname = 'Microsoft Outlook' },
     { shortcut = 'P', appname = 'PhpStorm' },
