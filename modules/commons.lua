@@ -13,6 +13,8 @@ ConfigPath = '~/.hammerspoon/data/Config.json'
 InitConfigPath = '~/.hammerspoon/data/initConfig.json'
 Version = 'v0.1.2'
 
+local jq_cmd = nil
+
 --检查文件是否存在
 function checkFileExist(path)
     local file = hs.fs.pathToAbsolute(path)
@@ -53,11 +55,32 @@ end
 
 function formatJsonInClipboard()
     local pasteboard_content = Pasteboard.getContents()
+
     local decoded_table = JsonParser.decode(pasteboard_content)
     if decoded_table == nil then
         hs.alert('No valid JSON string found.')
+        return
     end
-    Pasteboard.setContents(JsonParser.encode(decoded_table, true))
+
+    if jq_cmd == nil then
+        local status = nil
+        jq_cmd, status = hs.execute('which jq', true)
+        if status == false then
+            hs.alert('Failed to find jq.')
+            return
+        end
+        jq_cmd = jq_cmd:gsub("[\n\r]", "")
+    end
+
+    local cmd = "echo '" .. pasteboard_content .. "' | " .. jq_cmd .. ' --indent 4'
+    local output, status = hs.execute(cmd)
+    if status == false then
+        hs.alert(output)
+        return
+    end
+
+    Pasteboard.setContents(output)
+    hs.alert(output)
 end
 
 --设置全局菜单栏
