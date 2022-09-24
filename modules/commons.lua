@@ -1,29 +1,21 @@
 ---
---- 公共函数
---- Created by sugood(https://github.com/sugood).
---- DateTime: 2020/10/24 14:13
+--- Create a menubar icon providing utilities and initialize the settings.
 ---
-JsonParser = require('hs.json')
-Pasteboard = require('hs.pasteboard')
-local console = require('hs.console')
 
-ColorDialog = hs.dialog.color
-Config = {}
-ConfigPath = '~/.hammerspoon/data/Config.json'
-InitConfigPath = '~/.hammerspoon/data/initConfig.json'
-Version = 'v0.1.2'
+MenubarItem = nil
+Settings = {}
 
+local config_file = '~/.hammerspoon/data/Config.json'
+local config_file_template = '~/.hammerspoon/data/initConfig.json'
 local jq_cmd = nil
+local version = 'v0.1.2'
 
---检查文件是否存在
-function checkFileExist(path)
+local function file_exists(path)
     local file = hs.fs.pathToAbsolute(path)
     return file ~= nil
 end
 
---复制文件
-function copyFile(source, destination)
-    print(destination)
+local function copy_file(source, destination)
     local sourcefile = io.open(source, 'r')
     local destinationfile = io.open(destination, 'w')
     destinationfile:write(sourcefile:read('*all'))
@@ -31,32 +23,37 @@ function copyFile(source, destination)
     destinationfile:close()
 end
 
-function switchCaffeine()
-    if Config[1].caffeine == 'on' then
-        Config[1].caffeine = 'off'
+local function toggle_caffeine()
+    if Settings[1].caffeine == 'on' then
+        Settings[1].caffeine = 'off'
     else
-        Config[1].caffeine = 'on'
+        Settings[1].caffeine = 'on'
     end
-    hs.json.write(Config, ConfigPath, true, true)
+    hs.json.write(Settings, config_file, true, true)
     hs.reload()
 end
 
-function openColorDialog()
+local function open_color_picker()
+    local color_dialog = hs.dialog.color
+
     hs.openConsole(true)
-    ColorDialog.show()
-    ColorDialog.mode('RGB')
-    ColorDialog.callback(function(a, b)
+
+    color_dialog.show()
+    color_dialog.mode('RGB')
+    color_dialog.callback(function(a, b)
         if b then
             hs.closeConsole()
         end
     end)
+
     hs.closeConsole()
 end
 
-function formatJsonInClipboard()
-    local pasteboard_content = Pasteboard.getContents()
+local function format_json_in_clipboard()
+    local pasteboard = require('hs.pasteboard')
+    local pasteboard_content = pasteboard.getContents()
 
-    local decoded_table = JsonParser.decode(pasteboard_content)
+    local decoded_table = hs.json.decode(pasteboard_content)
     if decoded_table == nil then
         hs.alert('No valid JSON string found.')
         return
@@ -79,18 +76,17 @@ function formatJsonInClipboard()
         return
     end
 
-    Pasteboard.setContents(output)
+    pasteboard.setContents(output)
     hs.alert(output)
 end
 
---设置全局菜单栏
-function initMenu()
-    macMenubar = hs.menubar.new()
-    macMenubar:setTitle('')
-    macMenubar:setIcon('~/.hammerspoon/icon/input_u.pdf')
-    macMenubar:setMenu({
+local function create_menu()
+    MenubarItem = hs.menubar.new()
+    MenubarItem:setTitle('')
+    MenubarItem:setIcon('~/.hammerspoon/icon/input_u.pdf')
+    MenubarItem:setMenu({
         {
-            title = 'Reload Config',
+            title = 'Reload Settings',
             fn = function()
                 hs.reload()
             end,
@@ -111,19 +107,19 @@ function initMenu()
         {
             title = '屏幕取色',
             fn = function()
-                openColorDialog()
+                open_color_picker()
             end,
         },
         {
-            title = '咖啡因：' .. Config[1].caffeine,
+            title = '咖啡因：' .. Settings[1].caffeine,
             fn = function()
-                switchCaffeine()
+                toggle_caffeine()
             end,
         },
         {
             title = '格式化剪贴板 Json',
             fn = function()
-                formatJsonInClipboard()
+                format_json_in_clipboard()
             end,
         },
         { title = '-' },
@@ -132,7 +128,7 @@ function initMenu()
             fn = function()
                 if
                     hs.dialog.blockAlert(
-                        '当前版本：' .. Version,
+                        '当前版本：' .. version,
                         '整理了一些能够提高效率的脚本，打开主页查看详细说明。',
                         '确定',
                         '取消',
@@ -146,101 +142,26 @@ function initMenu()
     })
 end
 
-function initData()
-    --第一次安装需要复制一个配置文件。以后更新则不会修改用户配置文件，防止被覆盖
-    if checkFileExist(ConfigPath) == false then
-        print('初始化配置文件')
-        --获取绝对路径，io.open只支持绝对路径
-        local source = hs.fs.pathToAbsolute(InitConfigPath)
+local function run()
+    hs.console.clearConsole()
+
+    if file_exists(config_file) == false then
+        -- io.open requires absolute file path.
+        local source = hs.fs.pathToAbsolute(config_file_template)
         local destination = string.gsub(source, 'initConfig.json$', 'Config.json')
-        copyFile(source, destination)
+        copy_file(source, destination)
     end
 
-    if hs.json.read(ConfigPath) ~= nil then
-        Config = hs.json.read(ConfigPath)
+    if hs.json.read(config_file) ~= nil then
+        Settings = hs.json.read(config_file)
     end
-    initMenu()
-    -- 修改全局alert样式
+
+    create_menu()
+
+    -- Set the global alert style
     hs.alert.defaultStyle.strokeColor = { white = 1, alpha = 0 }
     hs.alert.defaultStyle.fillColor = { white = 0.05, alpha = 0.75 }
     hs.alert.defaultStyle.radius = 10
-    --清空打印信息
-    console.clearConsole()
-    --
-    ColorDialog.mode('RGB')
 end
 
-initData()
-
--- 字符串判空
-function stringIsEmpty(str)
-    return str == nil or str == ''
-end
-
---生成url编码
-function decodeURI(s)
-    s = string.gsub(s, '([^%w%.%- ])', function(c)
-        return string.format('%%%02X', string.byte(c))
-    end)
-    return string.gsub(s, ' ', '+')
-end
-
---截取UTF8字符
-function SubStringUTF8(str, startIndex, endIndex)
-    if startIndex < 0 then
-        startIndex = SubStringGetTotalIndex(str) + startIndex + 1
-    end
-
-    if endIndex ~= nil and endIndex < 0 then
-        endIndex = SubStringGetTotalIndex(str) + endIndex + 1
-    end
-
-    if endIndex == nil then
-        return string.sub(str, SubStringGetTrueIndex(str, startIndex))
-    else
-        return string.sub(str, SubStringGetTrueIndex(str, startIndex), SubStringGetTrueIndex(str, endIndex + 1) - 1)
-    end
-end
-
---获取中英混合UTF8字符串的真实字符数量
-function SubStringGetTotalIndex(str)
-    local curIndex = 0
-    local i = 1
-    local lastCount = 1
-    repeat
-        lastCount = SubStringGetByteCount(str, i)
-        i = i + lastCount
-        curIndex = curIndex + 1
-    until lastCount == 0
-    return curIndex - 1
-end
-
-function SubStringGetTrueIndex(str, index)
-    local curIndex = 0
-    local i = 1
-    local lastCount = 1
-    repeat
-        lastCount = SubStringGetByteCount(str, i)
-        i = i + lastCount
-        curIndex = curIndex + 1
-    until curIndex >= index
-    return i - lastCount
-end
-
---返回当前字符实际占用的字符数
-function SubStringGetByteCount(str, index)
-    local curByte = string.byte(str, index)
-    local byteCount = 1
-    if curByte == nil then
-        byteCount = 0
-    elseif curByte > 0 and curByte <= 127 then
-        byteCount = 1
-    elseif curByte >= 192 and curByte <= 223 then
-        byteCount = 2
-    elseif curByte >= 224 and curByte <= 239 then
-        byteCount = 3
-    elseif curByte >= 240 and curByte <= 247 then
-        byteCount = 4
-    end
-    return byteCount
-end
+run()

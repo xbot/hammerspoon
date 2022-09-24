@@ -1,6 +1,7 @@
+local dk = require('modules/decoration_keys')
 local hotkey = require('hs.hotkey')
 
-hotkey.bind(hyper, 'K', function()
+hotkey.bind(dk.hyper, 'K', function()
     local configFile = os.getenv('HOME') .. '/.config/karabiner/karabiner.json'
 
     if hs.json.read(configFile) == nil then

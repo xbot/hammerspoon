@@ -1,9 +1,9 @@
-local hotkey = require('hs.hotkey')
-local grid = require('hs.grid')
-local window = require('hs.window')
-local application = require('hs.application')
 local appfinder = require('hs.appfinder')
+local application = require('hs.application')
 local fnutils = require('hs.fnutils')
+local grid = require('hs.grid')
+local hotkey = require('hs.hotkey')
+local window = require('hs.window')
 
 hs.application.enableSpotlightForNameSearches(true)
 

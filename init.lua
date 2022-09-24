@@ -18,7 +18,6 @@ spoon.ReloadConfiguration:start()
 hs.ipc.cliInstall()
 
 require('modules/commons')
-require('modules/hotkey')
 require('modules/system')
 require('modules/windows')
 require('modules/launcher')

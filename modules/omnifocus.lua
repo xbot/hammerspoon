@@ -13,10 +13,11 @@ spoon.SendToOmniFocus:registerApplication('Vivaldi', {
     itemname = 'tab',
 })
 
+local dk = require('modules/decoration_keys')
 local hotkey = require('hs.hotkey')
 
 -- Press ctrl+opt+O to format Jira ticket title
-hotkey.bind(hyperCtrl, 'O', function()
+hotkey.bind(dk.hyperCtrl, 'O', function()
     local selectedText = hs.uielement.focusedElement():selectedText()
 
     if selectedText == nil then

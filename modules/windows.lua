@@ -1,21 +1,63 @@
--- window management
+--
+-- Window management
+--
+
 local alert = require('hs.alert')
-local application = require('hs.application')
+local dk = require('modules/decoration_keys')
 local fnutils = require('hs.fnutils')
 local geometry = require('hs.geometry')
-local grid = require('hs.grid')
 local hints = require('hs.hints')
 local hotkey = require('hs.hotkey')
 local layout = require('hs.layout')
 local mouse = require('hs.mouse')
-local screen = require('hs.screen')
 local window = require('hs.window')
+-- local application = require('hs.application')
+-- local grid = require('hs.grid')
+-- local screen = require('hs.screen')
 
 -- default 0.2
 window.animationDuration = 0
 
+-- Predicate that checks if a window belongs to a screen
+local function is_in_screen(screen, win)
+    return win:screen() == screen
+end
+
+local function focus_screen(screen)
+    -- Get windows within screen, ordered from front to back.
+    -- If no windows exist, bring focus to desktop. Otherwise, set focus on
+    -- front-most application window.
+    local windows = fnutils.filter(window.orderedWindows(), fnutils.partial(is_in_screen, screen))
+    local windowToFocus = #windows > 0 and windows[1] or window.desktop()
+    windowToFocus:focus()
+
+    -- move cursor to center of screen
+    local pt = geometry.rectMidPoint(screen:fullFrame())
+    mouse.absolutePosition(pt)
+end
+
+local function is_screen_vertical()
+    local screen = window.focusedWindow():screen()
+
+    return hs.fnutils.contains({ 90, 270 }, screen:rotate())
+end
+
+-- defines for window maximize toggler
+local frameCache = {}
+-- toggle a window between its normal size, and being maximized
+local function toggle_maximize()
+    local win = window.focusedWindow()
+    if frameCache[win:id()] then
+        win:setFrame(frameCache[win:id()])
+        frameCache[win:id()] = nil
+    else
+        frameCache[win:id()] = win:frame()
+        win:maximize()
+    end
+end
+
 -- left half
-hotkey.bind(hyperCtrl, ',', function()
+hotkey.bind(dk.hyperCtrl, ',', function()
     if window.focusedWindow() then
         window.focusedWindow():moveToUnit(layout.left50)
     else
@@ -24,18 +66,12 @@ hotkey.bind(hyperCtrl, ',', function()
 end)
 
 -- right half
-hotkey.bind(hyperCtrl, '.', function()
+hotkey.bind(dk.hyperCtrl, '.', function()
     window.focusedWindow():moveToUnit(layout.right50)
 end)
 
-local function is_screen_vertical()
-    local screen = window.focusedWindow():screen()
-
-    return hs.fnutils.contains({ 90, 270 }, screen:rotate())
-end
-
 -- right three quarters
-hotkey.bind(hyperCtrl, 'L', function()
+hotkey.bind(dk.hyperCtrl, 'L', function()
     if window.focusedWindow() then
         local unit = layout.right75
 
@@ -50,7 +86,7 @@ hotkey.bind(hyperCtrl, 'L', function()
 end)
 
 -- left a quarter
-hotkey.bind(hyperCtrl, 'R', function()
+hotkey.bind(dk.hyperCtrl, 'R', function()
     if window.focusedWindow() then
         local unit = layout.left25
 
@@ -65,7 +101,7 @@ hotkey.bind(hyperCtrl, 'R', function()
 end)
 
 -- right two thirds
-hotkey.bind(hyperCtrl, 'E', function()
+hotkey.bind(dk.hyperCtrl, 'E', function()
     if window.focusedWindow() then
         local unit = geometry.rect(0.34, 0, 0.66, 1)
 
@@ -80,7 +116,7 @@ hotkey.bind(hyperCtrl, 'E', function()
 end)
 
 -- left a third
-hotkey.bind(hyperCtrl, 'G', function()
+hotkey.bind(dk.hyperCtrl, 'G', function()
     if window.focusedWindow() then
         local unit = geometry.rect(0, 0, 0.34, 1)
 
@@ -95,12 +131,12 @@ hotkey.bind(hyperCtrl, 'G', function()
 end)
 
 -- -- top half
--- hotkey.bind(hyper, "Up", function()
+-- hotkey.bind(dk.hyper, "Up", function()
 -- window.focusedWindow():moveToUnit'[0,0,100,50]'
 -- end)
 
 -- -- bottom half
--- hotkey.bind(hyper, "Down", function()
+-- hotkey.bind(dk.hyper, "Down", function()
 -- window.focusedWindow():moveToUnit'[0,50,100,100]'
 -- end)
 
@@ -125,81 +161,49 @@ end)
 -- end)
 
 -- -- full screen
--- hotkey.bind(hyper, 'F', function()
+-- hotkey.bind(dk.hyper, 'F', function()
 -- window.focusedWindow():toggleFullScreen()
 -- end)
 
 -- center window
-hotkey.bind(hyperCtrl, 'C', function()
+hotkey.bind(dk.hyperCtrl, 'C', function()
     window.focusedWindow():centerOnScreen()
 end)
 
 -- maximize window
-hotkey.bind(hyperCtrl, 'Return', function()
+hotkey.bind(dk.hyperCtrl, 'Return', function()
     toggle_maximize()
 end)
 
--- defines for window maximize toggler
-local frameCache = {}
--- toggle a window between its normal size, and being maximized
-function toggle_maximize()
-    local win = window.focusedWindow()
-    if frameCache[win:id()] then
-        win:setFrame(frameCache[win:id()])
-        frameCache[win:id()] = nil
-    else
-        frameCache[win:id()] = win:frame()
-        win:maximize()
-    end
-end
-
 -- display a keyboard hint for switching focus to each window
-hotkey.bind(hyperShift, '/', function()
+hotkey.bind(dk.hyperShift, '/', function()
     hints.windowHints()
     -- Display current application window
     -- hints.windowHints(hs.window.focusedWindow():application():allWindows())
 end)
 
 -- -- switch active window
--- hotkey.bind(hyperShift, "H", function() window.switcher.nextWindow() end)
+-- hotkey.bind(dk.hyperShift, "H", function() window.switcher.nextWindow() end)
 
 -- move active window to previous monitor
-hotkey.bind(hyper, 'Left', function()
+hotkey.bind(dk.hyper, 'Left', function()
     window.focusedWindow():moveOneScreenWest()
 end)
 
 -- move active window to next monitor
-hotkey.bind(hyper, 'Right', function()
+hotkey.bind(dk.hyper, 'Right', function()
     window.focusedWindow():moveOneScreenEast()
 end)
 
 -- move cursor to previous monitor
-hotkey.bind(hyperCtrl, 'Right', function()
-    focusScreen(window.focusedWindow():screen():previous())
+hotkey.bind(dk.hyperCtrl, 'Right', function()
+    focus_screen(window.focusedWindow():screen():previous())
 end)
 
 -- move cursor to next monitor
-hotkey.bind(hyperCtrl, 'Left', function()
-    focusScreen(window.focusedWindow():screen():next())
+hotkey.bind(dk.hyperCtrl, 'Left', function()
+    focus_screen(window.focusedWindow():screen():next())
 end)
-
--- Predicate that checks if a window belongs to a screen
-function isInScreen(screen, win)
-    return win:screen() == screen
-end
-
-function focusScreen(screen)
-    -- Get windows within screen, ordered from front to back.
-    -- If no windows exist, bring focus to desktop. Otherwise, set focus on
-    -- front-most application window.
-    local windows = fnutils.filter(window.orderedWindows(), fnutils.partial(isInScreen, screen))
-    local windowToFocus = #windows > 0 and windows[1] or window.desktop()
-    windowToFocus:focus()
-
-    -- move cursor to center of screen
-    local pt = geometry.rectMidPoint(screen:fullFrame())
-    mouse.absolutePosition(pt)
-end
 
 -- -- maximized active window and move to selected monitor
 -- moveto = function(win, n)
@@ -216,22 +220,22 @@ end
 -- end
 
 -- -- move cursor to monitor 1 and maximize the window
--- hotkey.bind(hyperShift, "1", function()
+-- hotkey.bind(dk.hyperShift, "1", function()
 -- local win = window.focusedWindow()
 -- moveto(win, 1)
 -- end)
 
--- hotkey.bind(hyperShift, "2", function()
+-- hotkey.bind(dk.hyperShift, "2", function()
 -- local win = window.focusedWindow()
 -- moveto(win, 2)
 -- end)
 
--- hotkey.bind(hyperShift, "3", function()
+-- hotkey.bind(dk.hyperShift, "3", function()
 -- local win = window.focusedWindow()
 -- moveto(win, 3)
 -- end)
 
-hotkey.bind(hyperCtrl, 'X', function()
+hotkey.bind(dk.hyperCtrl, 'X', function()
     if window.focusedWindow() then
         local size = geometry.size(1280, 720)
 
