@@ -94,12 +94,12 @@ https://github.com/sugood/hammerspoon
 
 ### JSON format
 
-* Format JSON string in the pasteboard. Find it in the menubar item.
+Automatically format JSON string in the pasteboard. Toggle it in the menubar item.
 
 ### Screen color picker
 
-Find it in the menubar item.
+Toggle it in the menubar item.
 
 ### Caffeine
 
-Find it in the menubar item.
+Toggle it in the menubar item.

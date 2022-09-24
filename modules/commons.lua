@@ -7,8 +7,15 @@ Settings = {}
 
 local config_file = '~/.hammerspoon/data/Config.json'
 local config_file_template = '~/.hammerspoon/data/initConfig.json'
-local jq_cmd = nil
 local version = 'v0.1.2'
+
+function GetOption(option, default_value)
+    if Settings[1][option] == nil then
+        return default_value
+    end
+
+    return Settings[1][option]
+end
 
 local function file_exists(path)
     local file = hs.fs.pathToAbsolute(path)
@@ -29,6 +36,18 @@ local function toggle_caffeine()
     else
         Settings[1].caffeine = 'on'
     end
+
+    hs.json.write(Settings, config_file, true, true)
+    hs.reload()
+end
+
+local function toggle_json_beautifier()
+    if Settings[1].json_beautifier == 'on' then
+        Settings[1].json_beautifier = 'off'
+    else
+        Settings[1].json_beautifier = 'on'
+    end
+
     hs.json.write(Settings, config_file, true, true)
     hs.reload()
 end
@@ -47,37 +66,6 @@ local function open_color_picker()
     end)
 
     hs.closeConsole()
-end
-
-local function format_json_in_clipboard()
-    local pasteboard = require('hs.pasteboard')
-    local pasteboard_content = pasteboard.getContents()
-
-    local decoded_table = hs.json.decode(pasteboard_content)
-    if decoded_table == nil then
-        hs.alert('No valid JSON string found.')
-        return
-    end
-
-    if jq_cmd == nil then
-        local status = nil
-        jq_cmd, status = hs.execute('which jq', true)
-        if status == false then
-            hs.alert('Failed to find jq.')
-            return
-        end
-        jq_cmd = jq_cmd:gsub("[\n\r]", "")
-    end
-
-    local cmd = "echo '" .. pasteboard_content .. "' | " .. jq_cmd .. ' --indent 4'
-    local output, status = hs.execute(cmd)
-    if status == false then
-        hs.alert(output)
-        return
-    end
-
-    pasteboard.setContents(output)
-    hs.alert(output)
 end
 
 local function create_menu()
@@ -111,15 +99,15 @@ local function create_menu()
             end,
         },
         {
-            title = '咖啡因：' .. Settings[1].caffeine,
+            title = '咖啡因：' .. GetOption('caffeine', 'off'),
             fn = function()
                 toggle_caffeine()
             end,
         },
         {
-            title = '格式化剪贴板 Json',
+            title = '格式化剪贴板 JSON ：' .. GetOption('json_beautifier', 'off'),
             fn = function()
-                format_json_in_clipboard()
+                toggle_json_beautifier()
             end,
         },
         { title = '-' },
