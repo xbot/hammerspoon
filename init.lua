@@ -25,5 +25,3 @@ require('modules/caffeine')
 require('modules/karabiner')
 require('modules/omnifocus')
 require('modules/noizio')
-
--- require('modules/snippet')
