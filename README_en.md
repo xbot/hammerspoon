@@ -4,18 +4,17 @@
 
 1. Install [Hammerspoon](http://www.hammerspoon.org/)
 2. `git clone https://github.com/sugood/hammerspoon.git ~/.hammerspoon`
-3. [Detailed description](https://blog.csdn.net/sugoods/article/details/108984326)
 
 ## Modifier keys
 |           |  Key           |
 | --------- | -------------- |
 | <kbd>⇧</kbd> | Shift       |
 | <kbd>⌃</kbd> | Control   	 |
-| <kbd>⌥</kbd> | Option 		 |
+| <kbd>⌥</kbd> | Option 	 |
 | <kbd>⌘</kbd> | Command   	 |
 
 ## Reference code
-https://github.com/greyby/hammerspoon
+https://github.com/sugood/hammerspoon
 
 ## Language
 
@@ -71,41 +70,36 @@ https://github.com/greyby/hammerspoon
 
 ### Launch Application
 
-* <kbd>⌃</kbd><kbd>⇧</kbd> + <kbd>I</kbd> `IntelliJ IDEA`
-* <kbd>⌃</kbd><kbd>⇧</kbd> + <kbd>T</kbd> `Terminal`
-* <kbd>⌃</kbd><kbd>⇧</kbd> + <kbd>Z</kbd> `Calculator`
-* <kbd>⌃</kbd><kbd>⇧</kbd> + <kbd>D</kbd> `Finder`
-* <kbd>⌃</kbd><kbd>⇧</kbd> + <kbd>Q</kbd> `Activity Monitor`
-* <kbd>⌃</kbd><kbd>⇧</kbd> + <kbd>S</kbd> `System Preferences`
-* <kbd>⌃</kbd><kbd>⇧</kbd> + <kbd>C</kbd> `Google Chrome`
-* <kbd>⌃</kbd><kbd>⇧</kbd> + <kbd>A</kbd> `Launchpad`
-
-### Snippet & Memorandum
-
-* <kbd>⌥</kbd><kbd>⌘</kbd> + <kbd>X</kbd> Add a snippet or memos
-* <kbd>⌥</kbd><kbd>⌘</kbd> + <kbd>V</kbd> List snippet or memos and use them
+* <kbd>⌥</kbd> + <kbd>1</kbd> `OmniFocus`
+* <kbd>⌥</kbd> + <kbd>2</kbd> `Google Keep`
+* <kbd>⌥</kbd> + <kbd>3</kbd> `Sequel Ace`
+* <kbd>⌥</kbd> + <kbd>A</kbd> `Arc`
+* <kbd>⌥</kbd> + <kbd>C</kbd> `Visual Studio Code`
+* <kbd>⌥</kbd> + <kbd>D</kbd> `Dash`
+* <kbd>⌥</kbd> + <kbd>C</kbd> `EuDic`
+* <kbd>⌥</kbd> + <kbd>F</kbd> `Firefox`
+* <kbd>⌥</kbd> + <kbd>G</kbd> `Telegram`
+* <kbd>⌥</kbd> + <kbd>I</kbd> `Anki`
+* <kbd>⌥</kbd> + <kbd>J</kbd> `Safari`
+* <kbd>⌥</kbd> + <kbd>K</kbd> `kitty`
+* <kbd>⌥</kbd> + <kbd>L</kbd> `Logseq`
+* <kbd>⌥</kbd> + <kbd>M</kbd> `Mail or Spark`
+* <kbd>⌥</kbd> + <kbd>N</kbd> `Notion`
+* <kbd>⌥</kbd> + <kbd>O</kbd> `Microsoft Outlook`
+* <kbd>⌥</kbd> + <kbd>P</kbd> `PhpStorm`
+* <kbd>⌥</kbd> + <kbd>Q</kbd> `Activity Monitor`
+* <kbd>⌥</kbd> + <kbd>S</kbd> `Slack`
+* <kbd>⌥</kbd> + <kbd>V</kbd> `Vivaldi`
+* <kbd>⌥</kbd> + <kbd>Z</kbd> `MacVim`
 
 ### JSON format
 
-* <kbd>⌥</kbd><kbd>⌘</kbd> + <kbd>G</kbd> JSON format
+* Format JSON string in the pasteboard. Find it in the menubar item.
 
-### automatic synchronization time
+### Screen color picker
 
-* <kbd>⌥</kbd><kbd>⌘</kbd> + <kbd>T</kbd> automatic synchronization time
+Find it in the menubar item.
 
-### Translation
-* <kbd>⌥</kbd><kbd>⌘</kbd> + <kbd>F</kbd> Translation
+### Caffeine
 
-Support baidu and youdao translation API. Baidu Translation can be used directly. Youdao translation requires first applying youdao translation API and configuring appKey and appSecret
-
-###  Screen color selection function
-
-Click the screen color in the menu bar, click the color picker after the screen color picker interface appears, and the color value at the position of the mouse on the screen can be obtained
-
-### caffeine
-
-On the menu bar, click caffeine to turn on the system's never sleep feature, and then click again to turn it off
-
-### The status bar shows the status of the input method
-
-Can display case status, input method status, Chinese and English status. So far, only sogou input method has been tested
+Find it in the menubar item.

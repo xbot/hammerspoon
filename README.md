@@ -68,23 +68,31 @@ https://github.com/sugood/hammerspoon
 
 ### 快速启动
 
-* <kbd>⌃</kbd><kbd>⇧</kbd> + <kbd>I</kbd> `IntelliJ IDEA`
-* <kbd>⌃</kbd><kbd>⇧</kbd> + <kbd>T</kbd> `Terminal`
-* <kbd>⌃</kbd><kbd>⇧</kbd> + <kbd>Z</kbd> `Calculator`
-* <kbd>⌃</kbd><kbd>⇧</kbd> + <kbd>D</kbd> `Finder`
-* <kbd>⌃</kbd><kbd>⇧</kbd> + <kbd>Q</kbd> `Activity Monitor`
-* <kbd>⌃</kbd><kbd>⇧</kbd> + <kbd>S</kbd> `System Preferences`
-* <kbd>⌃</kbd><kbd>⇧</kbd> + <kbd>C</kbd> `Google Chrome`
-* <kbd>⌃</kbd><kbd>⇧</kbd> + <kbd>A</kbd> `Launchpad`
-
-### 片段和备忘录
-
-* <kbd>⌥</kbd><kbd>⌘</kbd> + <kbd>X</kbd> 添加一个片段或者备忘
-* <kbd>⌥</kbd><kbd>⌘</kbd> + <kbd>V</kbd> 列出片段或备忘录并使用
+* <kbd>⌥</kbd> + <kbd>1</kbd> `OmniFocus`
+* <kbd>⌥</kbd> + <kbd>2</kbd> `Google Keep`
+* <kbd>⌥</kbd> + <kbd>3</kbd> `Sequel Ace`
+* <kbd>⌥</kbd> + <kbd>A</kbd> `Arc`
+* <kbd>⌥</kbd> + <kbd>C</kbd> `Visual Studio Code`
+* <kbd>⌥</kbd> + <kbd>D</kbd> `Dash`
+* <kbd>⌥</kbd> + <kbd>C</kbd> `EuDic`
+* <kbd>⌥</kbd> + <kbd>F</kbd> `Firefox`
+* <kbd>⌥</kbd> + <kbd>G</kbd> `Telegram`
+* <kbd>⌥</kbd> + <kbd>I</kbd> `Anki`
+* <kbd>⌥</kbd> + <kbd>J</kbd> `Safari`
+* <kbd>⌥</kbd> + <kbd>K</kbd> `kitty`
+* <kbd>⌥</kbd> + <kbd>L</kbd> `Logseq`
+* <kbd>⌥</kbd> + <kbd>M</kbd> `Mail or Spark`
+* <kbd>⌥</kbd> + <kbd>N</kbd> `Notion`
+* <kbd>⌥</kbd> + <kbd>O</kbd> `Microsoft Outlook`
+* <kbd>⌥</kbd> + <kbd>P</kbd> `PhpStorm`
+* <kbd>⌥</kbd> + <kbd>Q</kbd> `Activity Monitor`
+* <kbd>⌥</kbd> + <kbd>S</kbd> `Slack`
+* <kbd>⌥</kbd> + <kbd>V</kbd> `Vivaldi`
+* <kbd>⌥</kbd> + <kbd>Z</kbd> `MacVim`
 
 ### JSON格式化
 
-* <kbd>⌥</kbd><kbd>⌘</kbd> + <kbd>G</kbd> JSON格式化
+格式化剪贴板中的 JSON 。
 
 ### 屏幕取色功能
 

@@ -73,7 +73,6 @@ local applist = {
     { shortcut = 'Q', appname = 'Activity Monitor' },
     { shortcut = 'S', appname = 'Slack' },
     { shortcut = 'V', appname = 'Vivaldi' },
-    { shortcut = 'W', appname = 'Workflowy' },
     { shortcut = 'Z', appname = 'MacVim' },
 }
 
