@@ -1,6 +1,7 @@
 [
   {
     "caffeine" : "off",
-    "json_beautifier" : "off"
+    "json_beautifier" : "off",
+    "watch_omnifocus_sensible_data" : "off"
   }
 ]

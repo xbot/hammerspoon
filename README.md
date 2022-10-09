@@ -94,6 +94,28 @@ https://github.com/sugood/hammerspoon
 
 自动格式化剪贴板中的 JSON 。通过托盘图标中的菜单项开关。
 
+### 手动/自动收集网页到 OmniFocus
+
+手动收集网页支持 Google Chrome / Brave Browser / Vivaldi
+
+<kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd> + O
+
+自动收集网页支持任意浏览器，需将特定格式字符串复制到剪贴板。例如在 Surfingkeys 中添加如下配置：
+
+```javascript
+mapkey(',yy', 'Copy OmniFocus sensible info.', copyOmniFocusSensibleInfo);
+
+function copyOmniFocusSensibleInfo() {
+    var info_arr = [];
+    
+    info_arr.push("#omnifocus_sensible");
+    info_arr.push(document.title);
+    info_arr.push(window.location.href);
+    
+    Clipboard.write(info_arr.join("\n"));
+}
+```
+
 ### 屏幕取色功能
 
 菜单栏点击屏幕取色。通过托盘图标中的菜单项开关。

@@ -42,3 +42,52 @@ hotkey.bind(dk.hyperCtrl, 'O', function()
     hs.pasteboard.setContents(formattedText)
     hs.eventtap.keyStroke({ 'cmd' }, 'v')
 end)
+
+---
+--- Pasteboard watcher
+---
+
+-- OmniFocusPasteboardWatcher = nil
+
+-- Interpolate table values into a string
+-- From http://lua-users.org/wiki/StringInterpolation
+local function interp(s, tab)
+   return (s:gsub('($%b{})', function(w) return tab[w:sub(3, -2)] or w end))
+end
+
+-- Read a whole file into a string
+local function slurp(path)
+   local f = assert(io.open(path))
+   local s = f:read("*a")
+   f:close()
+   return s
+end
+
+local pasteboard = require('hs.pasteboard')
+
+local function open_omnifocus_edit_dialog(lines)
+    local module_dir = debug.getinfo(1, "S").source:sub(2):match("(.*/)")
+    local template_file = module_dir .. '../templates/add_webpage_to_omnifocus.tpl'
+    local text=slurp(template_file)
+    local data = {
+        title = lines[2],
+        url = lines[3],
+    }
+    local as_script = interp(text, data)
+    hs.osascript.applescript(as_script)
+end
+
+if GetOption('watch_omnifocus_sensible_data', 'off') == 'on' then
+    OmniFocusPasteboardWatcher = pasteboard.watcher.new(function(pasteboard_content)
+        local lines = {}
+        for line in string.gmatch(pasteboard_content, "[^\r\n]+") do
+            table.insert(lines, line)
+        end
+
+        if #lines == 3 and lines[1] == '#omnifocus_sensible' then
+            open_omnifocus_edit_dialog(lines)
+        end
+    end)
+
+    OmniFocusPasteboardWatcher:start()
+end

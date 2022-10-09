@@ -52,6 +52,17 @@ local function toggle_json_beautifier()
     hs.reload()
 end
 
+local function toggle_omnifocus_sensible_data_watcher()
+    if Settings[1].watch_omnifocus_sensible_data == 'on' then
+        Settings[1].watch_omnifocus_sensible_data = 'off'
+    else
+        Settings[1].watch_omnifocus_sensible_data = 'on'
+    end
+
+    hs.json.write(Settings, config_file, true, true)
+    hs.reload()
+end
+
 local function open_color_picker()
     local color_dialog = hs.dialog.color
 
@@ -108,6 +119,12 @@ local function create_menu()
             title = '格式化剪贴板 JSON ：' .. GetOption('json_beautifier', 'off'),
             fn = function()
                 toggle_json_beautifier()
+            end,
+        },
+        {
+            title = '自动添加 OmniFocus 任务：' .. GetOption('watch_omnifocus_sensible_data', 'off'),
+            fn = function()
+                toggle_omnifocus_sensible_data_watcher()
             end,
         },
         { title = '-' },

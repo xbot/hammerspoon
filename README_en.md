@@ -96,6 +96,28 @@ https://github.com/sugood/hammerspoon
 
 Automatically format JSON string in the pasteboard. Toggle it in the menubar item.
 
+### 手动/自动收集网页到 OmniFocus
+
+Manual web collection support Google Chrome / Brave Browser / Vivaldi
+
+<kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd> + O
+
+Automatic collection of web pages supports any browser and requires copying a specific formatted string to the clipboard. For example, add the following configuration to Surfingkeys:
+
+```javascript
+mapkey(',yy', 'Copy OmniFocus sensible info.', copyOmniFocusSensibleInfo);
+
+function copyOmniFocusSensibleInfo() {
+    var info_arr = [];
+    
+    info_arr.push("#omnifocus_sensible");
+    info_arr.push(document.title);
+    info_arr.push(window.location.href);
+    
+    Clipboard.write(info_arr.join("\n"));
+}
+```
+
 ### Screen color picker
 
 Toggle it in the menubar item.
