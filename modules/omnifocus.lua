@@ -4,6 +4,10 @@ spoon.SendToOmniFocus:bindHotkeys({
     send_to_omnifocus = { { 'ctrl', 'alt', 'cmd' }, 'O' },
 })
 
+spoon.SendToOmniFocus:registerApplication('Arc', {
+    as_scriptfile = os.getenv('HOME') .. '/.hammerspoon/templates/add_arc_webpage_to_omnifocus.applescript',
+    itemname = 'tab'
+})
 spoon.SendToOmniFocus:registerApplication('Brave Browser', {
     apptype = 'chromeapp',
     itemname = 'tab',
