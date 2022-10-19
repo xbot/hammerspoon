@@ -96,14 +96,14 @@ https://github.com/sugood/hammerspoon
 
 ### 手动/自动收集网页到 OmniFocus
 
-手动收集网页支持 Google Chrome / Brave Browser / Vivaldi
+手动收集网页支持 Google Chrome / Arc Browser / Brave Browser / Vivaldi
 
 <kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd> + O
 
 自动收集网页支持任意浏览器，需将特定格式字符串复制到剪贴板。例如在 Surfingkeys 中添加如下配置：
 
 ```javascript
-mapkey(',yy', 'Copy OmniFocus sensible info.', copyOmniFocusSensibleInfo);
+mapkey('yO', 'Copy OmniFocus sensible info.', copyOmniFocusSensibleInfo);
 
 function copyOmniFocusSensibleInfo() {
     var info_arr = [];
