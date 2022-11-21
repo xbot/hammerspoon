@@ -173,7 +173,9 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.laravel-idea.search-composer-json&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/don/Dropbox/Mackup/.hammerspoon&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -187,7 +189,7 @@
       <recent name="$PROJECT_DIR$/data" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Lua Remote(Mobdebug).Lua Remote">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="HTML_USED" value="false" />
       <option name="WIDTH" value="400" />
@@ -279,6 +281,15 @@
       <option name="showConsole" value="true" />
       <method v="2" />
     </configuration>
+    <configuration name="Lua Remote" type="lua.mobdebug" factoryName="Lua Remote(Mobdebug)">
+      <module name=".hammerspoon" />
+      <option name="PORT" value="8172" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Lua Application.timesync.lua" />
+      <item itemvalue="Lua Remote(Mobdebug).Lua Remote" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Lua Application.timesync.lua" />
@@ -314,6 +325,12 @@
       <workItem from="1605253935454" duration="4884000" />
       <workItem from="1665295166619" duration="436000" />
       <workItem from="1665295630127" duration="80000" />
+      <workItem from="1666061713422" duration="3000" />
+      <workItem from="1666079683733" duration="38000" />
+      <workItem from="1666079728829" duration="376000" />
+      <workItem from="1666080106714" duration="860000" />
+      <workItem from="1666081192062" duration="484000" />
+      <workItem from="1667457226052" duration="22000" />
     </task>
     <servers />
   </component>
