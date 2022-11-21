@@ -47,6 +47,11 @@ hotkey.bind(dk.hyperCtrl, 'O', function()
     hs.eventtap.keyStroke({ 'cmd' }, 'v')
 end)
 
+-- Press ctrl+opt+cmd+. to open the quick entry dialog for logging.
+hotkey.bind(dk.hyper, '.', function()
+    hs.urlevent.openURL('omnifocus:///add?project=Chore&completed=now')
+end)
+
 ---
 --- Pasteboard watcher
 ---
