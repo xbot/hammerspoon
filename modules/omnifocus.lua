@@ -52,6 +52,16 @@ hotkey.bind(dk.hyper, '.', function()
     hs.urlevent.openURL('omnifocus:///add?project=Chore&completed=now')
 end)
 
+-- Press ctrl+opt+cmd+, to open the quick entry dialog for shopping list.
+hotkey.bind(dk.hyper, ',', function()
+    hs.urlevent.openURL('omnifocus:///add?project=Wish&context=Shopping,Today')
+end)
+
+-- Press ctrl+opt+cmd+/ to open the quick entry dialog for chat topics.
+hotkey.bind(dk.hyper, '/', function()
+    hs.urlevent.openURL('omnifocus:///add?project=Chat&context=Topic')
+end)
+
 ---
 --- Pasteboard watcher
 ---

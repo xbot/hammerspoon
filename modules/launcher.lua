@@ -55,7 +55,7 @@ end
 local applist = {
     { shortcut = '1', appname = 'OmniFocus' },
     { shortcut = '2', appname = 'Google Keep' },
-    { shortcut = '3', appname = 'Sequel Ace' },
+    { shortcut = '3', appname = 'TablePlus' },
     { shortcut = 'A', appname = 'Arc' },
     { shortcut = 'C', appname = 'Visual Studio Code' },
     { shortcut = 'D', appname = 'Dash' },
@@ -99,9 +99,9 @@ end
 local defaultTwitterClient = nil
 
 if machine_name == 'MacBook Air' then
-    defaultTwitterClient = 'Tweetbot'
+    defaultTwitterClient = 'Twitter'
 else
-    defaultTwitterClient = 'Tweetbot'
+    defaultTwitterClient = 'Twitter'
 end
 
 if defaultTwitterClient ~= nil then

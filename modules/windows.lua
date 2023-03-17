@@ -70,6 +70,16 @@ hotkey.bind(dk.hyperCtrl, '.', function()
     window.focusedWindow():moveToUnit(layout.right50)
 end)
 
+-- top half
+hotkey.bind(dk.hyperCtrl, "J", function()
+window.focusedWindow():moveToUnit'[0,0,100,50]'
+end)
+
+-- bottom half
+hotkey.bind(dk.hyperCtrl, "K", function()
+window.focusedWindow():moveToUnit'[0,50,100,100]'
+end)
+
 -- right three quarters
 hotkey.bind(dk.hyperCtrl, 'L', function()
     if window.focusedWindow() then
@@ -129,16 +139,6 @@ hotkey.bind(dk.hyperCtrl, 'G', function()
         alert.show('No active window')
     end
 end)
-
--- -- top half
--- hotkey.bind(dk.hyper, "Up", function()
--- window.focusedWindow():moveToUnit'[0,0,100,50]'
--- end)
-
--- -- bottom half
--- hotkey.bind(dk.hyper, "Down", function()
--- window.focusedWindow():moveToUnit'[0,50,100,100]'
--- end)
 
 -- -- left top quarter
 -- hotkey.bind(hyperAlt, "Left", function()
