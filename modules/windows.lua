@@ -11,9 +11,7 @@ local hotkey = require('hs.hotkey')
 local layout = require('hs.layout')
 local mouse = require('hs.mouse')
 local window = require('hs.window')
--- local application = require('hs.application')
 -- local grid = require('hs.grid')
--- local screen = require('hs.screen')
 
 -- default 0.2
 window.animationDuration = 0
@@ -113,10 +111,10 @@ end)
 -- right two thirds
 hotkey.bind(dk.hyperCtrl, 'E', function()
     if window.focusedWindow() then
-        local unit = geometry.rect(0.34, 0, 0.66, 1)
+        local unit = geometry.rect(0.33, 0, 0.67, 1)
 
         if is_screen_vertical() then
-            unit = geometry.rect(0, 0, 1, 0.66)
+            unit = geometry.rect(0, 0, 1, 0.67)
         end
 
         window.focusedWindow():moveToUnit(unit)
@@ -128,10 +126,10 @@ end)
 -- left a third
 hotkey.bind(dk.hyperCtrl, 'G', function()
     if window.focusedWindow() then
-        local unit = geometry.rect(0, 0, 0.34, 1)
+        local unit = geometry.rect(0, 0, 0.33, 1)
 
         if is_screen_vertical() then
-            unit = geometry.rect(0, 0.66, 1, 0.34)
+            unit = geometry.rect(0, 0.67, 1, 0.33)
         end
 
         window.focusedWindow():moveToUnit(unit)

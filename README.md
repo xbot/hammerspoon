@@ -62,6 +62,12 @@ https://github.com/sugood/hammerspoon
 * <kbd>⇧</kbd><kbd>⌥</kbd> + <kbd>H</kbd>  切换活动窗口
 * <kbd>⇧</kbd><kbd>⌥</kbd> + <kbd>/</kbd>  显示窗口切换的快捷键
 
+### 桌面布局
+
+根据布局配置，在应用程序被激活时自动调整大小和重新定位。
+
+如果您不需要`desktop_layout`模块，请将其注释掉。
+
 ### 系统工具
 
 * <kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd> + <kbd>L</kbd> 锁屏

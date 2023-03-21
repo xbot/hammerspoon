@@ -64,6 +64,12 @@ https://github.com/sugood/hammerspoon
 * <kbd>⇧</kbd><kbd>⌥</kbd> + <kbd>H</kbd>  Switch active window
 * <kbd>⇧</kbd><kbd>⌥</kbd> + <kbd>/</kbd>  Display a keyboard hint for switching focus to each window
 
+### Desktop layout
+
+The app will automatically adjust its size and position based on the layout configuration when activated.
+
+To disable the `desktop_layout` module, comment it out.
+
 ### System Tools
 
 * <kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd> + <kbd>L</kbd> Lock Screen
