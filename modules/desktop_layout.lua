@@ -30,17 +30,19 @@ end
 -- Application list and corresponding layouts
 local desktopLayout = {
     -- Center of the primary screen
-    {apps = {'Anki', 'Bitwarden'}, screen = hs.screen.primaryScreen(), center = true},
+    {app = 'Anki', screen = hs.screen.primaryScreen(), center = true, excludeWindows = {'Browse %((%d+) of (%d+) cards selected%)'}},
+    {apps = {'Bitwarden'}, screen = hs.screen.primaryScreen(), center = true},
     -- The full size of the primary screen.
     {apps = {'Home Assistant', 'Logseq', 'Notion', 'Vivaldi'}, screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 1, 1)},
+    {app = 'Brave Browser', screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 1, 1), excludeWindows = {'Picture in Picture'}},
     -- The full size of the secondary screen, fallback to the left a third of the primary screen.
     {apps = {'Dash'}, screen = get_secondary_screen(), frame = hs.geometry.rect(0, 0, 1, 1), fallback = {screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 0.33, 1)}},
     -- The left a third of the primary screen.
     {apps = {'EuDic', 'Hammerspoon', 'Telegram'}, screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 0.33, 1)},
-    {app = 'Twitter', screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 0.33, 1), exclude = {'Tweet'}},
-    {app = 'WeChat', screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 0.33, 1), exclude = {'Log In'}},
+    {app = 'Twitter', screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 0.33, 1), excludeWindows = {'Tweet'}},
+    {app = 'WeChat', screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 0.33, 1), excludeWindows = {'Log In'}},
     -- The right two thirds of the primary screen.
-    {apps = {'OmniFocus', 'kitty'}, screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0.33, 0, 0.67, 1)},
+    {apps = {'OmniFocus', 'kitty'}, screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0.33, 0, 0.67, 1), ignoreMonitors = {'8A471A52-F994-1380-F02E-9A3AD0C2D437'}},
     -- The top half of the secondary screen, fallback to the left a third of the primary screen.
     {apps = {'Slack'}, screen = get_secondary_screen(), frame = hs.geometry.rect(0, 0, 1, 0.5), fallback = {screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 0.33, 1)}},
     -- The bottom half of the secondary screen, fallback to the right two thirds of the primary screen.
@@ -63,17 +65,23 @@ local function move_window(window, config)
         return
     end
 
-    -- Check if the window title matches any exclude patterns
+    -- Check if the window title matches any excludeWindows patterns
     local shouldExclude = false
-    for _, pattern in ipairs(config.exclude or {}) do
-        if string.find(window:title(), pattern) ~= nil then
+    for _, pattern in ipairs(config.excludeWindows or {}) do
+        if string.match(window:title(), pattern) ~= nil then
             shouldExclude = true
             break
         end
     end
 
     if shouldExclude then
-        logger.d('Window "' .. window:title() .. '" ignored by the "exclude" patterns.')
+        logger.d('Window "' .. window:title() .. '" ignored by the "excludeWindows" patterns.')
+        return
+    end
+
+    -- Check if the window is on the screen that should be ignored.
+    if hs.fnutils.contains(config.ignoreMonitors or {}, window:screen():getUUID()) then
+        logger.d('Window "' .. window:title() .. '" ignored by the "ignoreMonitors" settings.')
         return
     end
 
@@ -98,7 +106,7 @@ local function get_config_by_app_name(appName)
         if appConfig.app == appName or hs.fnutils.contains(appConfig.apps or {}, appName) then
             local config = appConfig
 
-            if (not config.screen or not config.frame) and config.fallback then
+            if not config.screen and config.fallback then
                 config = hs.fnutils.copy(config)
 
                 if not config then
@@ -161,3 +169,12 @@ end
 -- Start the application watcher
 AppWatcher = hs.application.watcher.new(application_watcher)
 AppWatcher:start()
+
+-- Reload configuration upon changing screen layout.
+
+ScreenWatcher = hs.screen.watcher.new(function()
+    hs.reload()
+    hs.notify.new({title="Hammerspoon", informativeText="Config Reloaded"}):send()
+end)
+
+ScreenWatcher:start()
