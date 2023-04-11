@@ -4,6 +4,8 @@
 
 local logger = hs.logger.new('Launcher', 'debug')
 
+local previousScreenByWindow = {}
+
 -- Take the right most screen as the secondary screen.
 local function get_secondary_screen()
     local primary = hs.screen.primaryScreen()
@@ -28,6 +30,7 @@ local function get_secondary_screen()
 end
 
 -- Application list and corresponding layouts
+-- Set *.layouts.*.frame = nil to ignore resizing windows on that screen.
 local desktopLayout = {
     -- Center of the primary screen
     {app = 'Anki', screen = hs.screen.primaryScreen(), center = true, excludeWindows = {'Browse %((%d+) of (%d+) cards selected%)'}},
@@ -38,11 +41,26 @@ local desktopLayout = {
     -- The full size of the secondary screen, fallback to the left a third of the primary screen.
     {apps = {'Dash'}, screen = get_secondary_screen(), frame = hs.geometry.rect(0, 0, 1, 1), fallback = {screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 0.33, 1)}},
     -- The left a third of the primary screen.
-    {apps = {'EuDic', 'Hammerspoon', 'Telegram'}, screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 0.33, 1)},
+    {
+        apps = {'EuDic', 'Hammerspoon', 'Telegram'},
+        screen = hs.screen.primaryScreen(),
+        frame = hs.geometry.rect(0, 0, 0.33, 1),
+        layouts = {
+            {screen = get_secondary_screen(), frame = hs.geometry.rect(0, 0, 1, 0.5)}
+            -- {screenUUID = 'XXXXXX-XXXXXX-XXXXXX-XXXXXX', frame = hs.geometry.rect(0, 0, 1, 0.5)}
+        }
+    },
     {app = 'Twitter', screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 0.33, 1), excludeWindows = {'Tweet'}},
     {app = 'WeChat', screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 0.33, 1), excludeWindows = {'Log In'}},
     -- The right two thirds of the primary screen.
-    {apps = {'OmniFocus', 'kitty'}, screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0.33, 0, 0.67, 1), ignoreMonitors = {'8A471A52-F994-1380-F02E-9A3AD0C2D437'}},
+    {
+        apps = {'OmniFocus', 'kitty'},
+        screen = hs.screen.primaryScreen(),
+        frame = hs.geometry.rect(0.33, 0, 0.67, 1),
+        layouts = {
+            {screen = get_secondary_screen(), frame = nil}
+        }
+    },
     -- The top half of the secondary screen, fallback to the left a third of the primary screen.
     {apps = {'Slack'}, screen = get_secondary_screen(), frame = hs.geometry.rect(0, 0, 1, 0.5), fallback = {screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 0.33, 1)}},
     -- The bottom half of the secondary screen, fallback to the right two thirds of the primary screen.
@@ -60,14 +78,14 @@ local function wait_for_window_ready(appObject, callback)
 end
 
 -- Move window to designated position
-local function move_window(window, config)
-    if not config then
+local function apply_layout(window, layout)
+    if not layout then
         return
     end
 
     -- Check if the window title matches any excludeWindows patterns
     local shouldExclude = false
-    for _, pattern in ipairs(config.excludeWindows or {}) do
+    for _, pattern in ipairs(layout.excludeWindows or {}) do
         if string.match(window:title(), pattern) ~= nil then
             shouldExclude = true
             break
@@ -79,100 +97,131 @@ local function move_window(window, config)
         return
     end
 
-    -- Check if the window is on the screen that should be ignored.
-    if hs.fnutils.contains(config.ignoreMonitors or {}, window:screen():getUUID()) then
-        logger.d('Window "' .. window:title() .. '" ignored by the "ignoreMonitors" settings.')
-        return
-    end
-
-    if config.screen then
-        if config.frame then
-            window:move(config.frame, config.screen, true)
+    if layout.screen then
+        if layout.frame then
+            window:move(layout.frame, layout.screen, true)
         else
-            window:moveToScreen(config.screen, true)
+            window:moveToScreen(layout.screen, true)
         end
     end
 
-    if config.center == true then
+    if layout.center == true then
         window:centerOnScreen()
     end
 
-    logger.d('Placed ' .. window:application():name() .. ' to the ' .. hs.inspect(config.frame) .. ' of the ' .. config.screen:name())
+    previousScreenByWindow[window:id()] = window:screen():getUUID()
+
+    logger.d('Placed ' .. window:application():name() .. ' (' .. window:title() .. ') to the ' .. hs.inspect(layout.frame) .. ' of the ' .. layout.screen:name())
 end
 
 -- Get config from desktopLayout by app name
-local function get_config_by_app_name(appName)
+local function get_app_config(appName)
     for _, appConfig in ipairs(desktopLayout) do
         if appConfig.app == appName or hs.fnutils.contains(appConfig.apps or {}, appName) then
-            local config = appConfig
-
-            if not config.screen and config.fallback then
-                config = hs.fnutils.copy(config)
-
-                if not config then
-                    return
-                end
-
-                if config.fallback.screen then
-                    config.screen = config.fallback.screen
-                end
-
-                if config.fallback.frame then
-                    config.frame = config.fallback.frame
-                end
-            end
-
-            return config
+            return appConfig
         end
     end
 
     return nil
 end
 
--- Watch new window
+local function generate_layout(appConfig, screen)
+    local layout = hs.fnutils.copy(appConfig)
 
-local wf = hs.window.filter.new(nil)
+    layout.fallback = nil
+    layout.layouts = nil
 
-local function on_window_created(window, appName, event)
+    -- Return the pre-defined layout for the current screen.
+    if appConfig.layouts then
+        for _, screenLayout in ipairs(appConfig.layouts) do
+            if (screenLayout.screen and screenLayout.screen == screen) or (screenLayout.screenUUID and screenLayout.screenUUID == screen:getUUID()) then
+                layout.screen = screen
+                layout.frame = screenLayout.frame
+                layout.center = screenLayout.center
+
+                return layout
+            end
+        end
+    end
+
+    if not layout.screen and appConfig.fallback then
+        if appConfig.fallback.screen then
+            layout.screen = appConfig.fallback.screen
+        end
+
+        if appConfig.fallback.frame then
+            layout.frame = appConfig.fallback.frame
+        end
+
+        if appConfig.fallback.center then
+            layout.center = appConfig.fallback.center
+        end
+    end
+
+    return layout
+end
+
+-- Window watcher
+
+local wf = hs.window.filter.default
+
+wf:subscribe(hs.window.filter.windowCreated, function(window, appName)
     if not window:isStandard() or window:isMinimized() then
         return
     end
 
     logger.d('New window "' .. window:title() .. '" created for ' .. appName)
 
-    local config = get_config_by_app_name(appName)
+    local config = get_app_config(appName)
     if not config then
         return
     end
 
-    move_window(window, config)
-end
+    local layout = generate_layout(config, window:screen())
+    apply_layout(window, layout)
+end)
 
-wf:subscribe(hs.window.filter.windowCreated, on_window_created)
+wf:subscribe(hs.window.filter.windowMoved, function(window)
+    local prevScreenUUID = previousScreenByWindow[window:id()]
+    local newScreenUUID = window:screen():getUUID()
 
--- Application watcher function
-local function application_watcher(appName, eventType, appObject)
+    if newScreenUUID ~= prevScreenUUID then
+        local config = get_app_config(window:application():name())
+        if not config then
+            return
+        end
+
+        logger.d("Window " .. window:title() .. " has been moved to screen: " .. window:screen():name())
+
+        local layout = generate_layout(config, window:screen())
+        apply_layout(window, layout)
+    end
+end)
+
+-- Application watcher
+
+AppWatcher = hs.application.watcher.new(function(appName, eventType, appObject)
     if eventType ~= hs.application.watcher.activated then
         return
     end
 
-    local config = get_config_by_app_name(appName)
+    local config = get_app_config(appName)
     if not config then
         return
     end
 
     wait_for_window_ready(appObject, function()
-        move_window(appObject:focusedWindow(), config)
+        local layout = generate_layout(config, appObject:focusedWindow():screen())
+        apply_layout(appObject:focusedWindow(), layout)
     end)
-end
+end)
 
--- Start the application watcher
-AppWatcher = hs.application.watcher.new(application_watcher)
 AppWatcher:start()
 
--- Reload configuration upon changing screen layout.
+-- Screen watcher
 
 ScreenWatcher = hs.screen.watcher.new(function()
+    -- Reload configuration upon changing screen layout.
     hs.reload()
     hs.notify.new({title="Hammerspoon", informativeText="Config Reloaded"}):send()
 end)
