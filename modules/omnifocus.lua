@@ -49,7 +49,7 @@ end)
 
 -- Press ctrl+opt+cmd+. to open the quick entry dialog for logging.
 hotkey.bind(dk.hyper, '.', function()
-    hs.urlevent.openURL('omnifocus:///add?project=Chore&completed=now')
+    hs.urlevent.openURL('omnifocus:///add?project=Chore&context=Journal&completed=now')
 end)
 
 -- Press ctrl+opt+cmd+, to open the quick entry dialog for shopping list.
