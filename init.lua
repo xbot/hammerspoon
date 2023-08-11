@@ -27,3 +27,5 @@ require('modules/omnifocus')
 require('modules/system')
 require('modules/windows')
 require('modules/desktop_layout')
+
+hs.notify.show("Hammerspoon", "Hammerspoon loaded!", "")

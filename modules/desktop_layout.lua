@@ -287,13 +287,3 @@ AppWatcher = hs.application.watcher.new(function(appName, eventType, appObject)
 end)
 
 AppWatcher:start()
-
--- Screen watcher
-
-ScreenWatcher = hs.screen.watcher.new(function()
-    -- Reload configuration upon changing screen layout.
-    hs.reload()
-    hs.notify.new({title="Hammerspoon", informativeText="Config Reloaded"}):send()
-end)
-
-ScreenWatcher:start()

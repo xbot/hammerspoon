@@ -68,8 +68,8 @@ local applist = {
     { shortcut = 'L', appname = 'Logseq' },
     { shortcut = 'M', appname = { 'Mail', 'Spark' } },
     { shortcut = 'N', appname = 'Notion' },
-    { shortcut = 'O', appname = 'Microsoft Outlook' },
-    { shortcut = 'P', appname = 'PhpStorm' },
+    { shortcut = 'O', appname = 'OpenCat' },
+    -- { shortcut = 'P', appname = 'PhpStorm' },
     { shortcut = 'Q', appname = 'Activity Monitor' },
     { shortcut = 'S', appname = 'Slack' },
     { shortcut = 'V', appname = 'Vivaldi' },
@@ -83,7 +83,7 @@ local machine_name = hs.host.localizedName()
    ]]
 local defaultBrowser = nil
 
-if machine_name == 'MacBook Air' then
+if string.find(machine_name, 'MacBook Air') or string.find(machine_name, 'iMac') then
     defaultBrowser = 'Brave Browser'
 else
     defaultBrowser = 'Google Chrome'
