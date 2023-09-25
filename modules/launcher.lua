@@ -53,14 +53,19 @@ local function toggle_application(app_names)
 end
 
 local applist = {
+    -- { shortcut = '2', appname = 'Google Keep' },
+    -- { shortcut = '3', appname = 'TablePlus' },
+    -- { shortcut = 'F', appname = 'Firefox' },
+    -- { shortcut = 'P', appname = 'PhpStorm' },
+    -- { shortcut = 'S', appname = 'Slack' },
+    -- { shortcut = 'V', appname = 'Vivaldi' },
+    -- { shortcut = 'Z', appname = 'MacVim' },
     { shortcut = '1', appname = 'OmniFocus' },
-    { shortcut = '2', appname = 'Google Keep' },
-    { shortcut = '3', appname = 'TablePlus' },
+    { shortcut = '2', appname = 'OpenCat' },
     { shortcut = 'A', appname = 'Arc' },
     { shortcut = 'C', appname = 'Visual Studio Code' },
     { shortcut = 'D', appname = 'Dash' },
     { shortcut = 'E', appname = 'EuDic' },
-    { shortcut = 'F', appname = 'Firefox' },
     { shortcut = 'G', appname = 'Telegram' },
     { shortcut = 'I', appname = 'Anki' },
     { shortcut = 'J', appname = 'Safari' },
@@ -68,12 +73,8 @@ local applist = {
     { shortcut = 'L', appname = 'Logseq' },
     { shortcut = 'M', appname = { 'Mail', 'Spark' } },
     { shortcut = 'N', appname = 'Notion' },
-    { shortcut = 'O', appname = 'OpenCat' },
-    -- { shortcut = 'P', appname = 'PhpStorm' },
+    { shortcut = 'O', appname = 'Obsidian' },
     { shortcut = 'Q', appname = 'Activity Monitor' },
-    { shortcut = 'S', appname = 'Slack' },
-    { shortcut = 'V', appname = 'Vivaldi' },
-    { shortcut = 'Z', appname = 'MacVim' },
 }
 
 local machine_name = hs.host.localizedName()
@@ -84,7 +85,7 @@ local machine_name = hs.host.localizedName()
 local defaultBrowser = nil
 
 if string.find(machine_name, 'MacBook Air') or string.find(machine_name, 'iMac') then
-    defaultBrowser = 'Brave Browser'
+    defaultBrowser = 'Microsoft Edge'
 else
     defaultBrowser = 'Google Chrome'
 end
