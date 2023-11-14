@@ -12,6 +12,10 @@ spoon.SendToOmniFocus:registerApplication('Brave Browser', {
     apptype = 'chromeapp',
     itemname = 'tab',
 })
+spoon.SendToOmniFocus:registerApplication('Microsoft Edge', {
+    apptype = 'chromeapp',
+    itemname = 'tab',
+})
 spoon.SendToOmniFocus:registerApplication('Vivaldi', {
     apptype = 'chromeapp',
     itemname = 'tab',

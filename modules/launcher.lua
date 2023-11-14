@@ -75,6 +75,7 @@ local applist = {
     { shortcut = 'N', appname = 'Notion' },
     { shortcut = 'O', appname = 'Obsidian' },
     { shortcut = 'Q', appname = 'Activity Monitor' },
+    { shortcut = 'V', appname = 'Neovide' },
 }
 
 local machine_name = hs.host.localizedName()
