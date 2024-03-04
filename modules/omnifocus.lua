@@ -56,14 +56,14 @@ hotkey.bind(dk.hyper, '.', function()
     hs.urlevent.openURL('omnifocus:///add?project=Chore&context=Journal&completed=now')
 end)
 
--- Press ctrl+opt+cmd+, to open the quick entry dialog for shopping list.
+-- Press ctrl+opt+cmd+, to open the quick entry dialog for today's chore.
 hotkey.bind(dk.hyper, ',', function()
-    hs.urlevent.openURL('omnifocus:///add?project=Wish&context=Shopping,Today')
+    hs.urlevent.openURL('omnifocus:///add?project=Chore&context=Today')
 end)
 
--- Press ctrl+opt+cmd+/ to open the quick entry dialog for chat topics.
+-- Press ctrl+opt+cmd+/ to open the quick entry dialog for bucket list.
 hotkey.bind(dk.hyper, '/', function()
-    hs.urlevent.openURL('omnifocus:///add?project=Chat&context=Topic')
+    hs.urlevent.openURL('omnifocus:///add?project=Wish&context=Shopping,Today')
 end)
 
 ---
