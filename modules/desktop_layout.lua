@@ -16,67 +16,108 @@ for _, app in ipairs(hs.application.runningApplications()) do
     end
 end
 
--- Take the right most screen as the secondary screen.
+-- Take the first non-primary screen as the secondary screen.
 local function get_secondary_screen()
+    local secondaryScreen
     local primary = hs.screen.primaryScreen()
     local screens = hs.screen.allScreens()
-    local rightmost = primary
-
-    if not screens then
-        return nil
-    end
 
     for _, screen in ipairs(screens) do
-        if screen ~= primary and screen:frame().x > rightmost:frame().x then
-            rightmost = screen
+        if screen ~= primary then
+            secondaryScreen = screen
+            break
         end
     end
 
-    if rightmost == primary then
-        return nil
-    end
-
-    return rightmost
+    return secondaryScreen
 end
 
--- Application list and corresponding layouts
+-- Application layouts
 -- Set *.layouts.*.frame = nil to ignore resizing windows on that screen.
-local desktopLayout = {
-    -- Center of the primary screen
-    {app = 'Anki', screen = hs.screen.primaryScreen(), center = true, excludeWindows = {'Browse %((%d+) of (%d+) cards selected%)'}},
-    {apps = {'Bitwarden'}, screen = hs.screen.primaryScreen(), center = true},
-    -- The full size of the primary screen.
-    {apps = {'Home Assistant', 'Logseq', 'Notion', 'Vivaldi'}, screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 1, 1)},
-    {app = 'Brave Browser', screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 1, 1), excludeWindows = {'Picture in Picture'}},
-    -- The full size of the secondary screen, fallback to the left a third of the primary screen.
-    {apps = {'Dash'}, screen = get_secondary_screen(), frame = hs.geometry.rect(0, 0, 1, 1), fallback = {screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 0.33, 1)}},
-    -- The left a third of the primary screen.
-    {
-        apps = {'EuDic', 'Hammerspoon', 'Telegram'},
-        screen = hs.screen.primaryScreen(),
-        frame = hs.geometry.rect(0, 0, 0.33, 1),
-        layouts = {
-            {screen = get_secondary_screen(), frame = hs.geometry.rect(0, 0, 1, 0.5)}
-            -- {screenUUID = 'XXXXXX-XXXXXX-XXXXXX-XXXXXX', frame = hs.geometry.rect(0, 0, 1, 0.5)}
-        }
-    },
-    {app = 'Twitter', screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 0.33, 1), excludeWindows = {'Tweet'}},
-    {app = 'WeChat', screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 0.33, 1), excludeWindows = {'Log In'}},
-    -- The right two thirds of the primary screen.
-    {
-        apps = {'OmniFocus', 'kitty'},
-        screen = hs.screen.primaryScreen(),
-        frame = hs.geometry.rect(0.33, 0, 0.67, 1),
-        layouts = {
-            {screen = get_secondary_screen(), frame = nil}
+local function init_desktop_layout()
+    return {
+        -- Center of the primary screen
+        {
+            app = 'Anki',
+            screen = hs.screen.primaryScreen(),
+            center = true,
+            excludeWindows = { 'Browse %((%d+) of (%d+) cards selected%)' },
         },
-        excludeWindows = {'.* Preferences'}
-    },
-    -- The top half of the secondary screen, fallback to the left a third of the primary screen.
-    {apps = {'Slack'}, screen = get_secondary_screen(), frame = hs.geometry.rect(0, 0, 1, 0.5), fallback = {screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 0.33, 1)}},
-    -- The bottom half of the secondary screen, fallback to the right two thirds of the primary screen.
-    {apps = {'Safari'}, screen = get_secondary_screen(), frame = hs.geometry.rect(0, 0.5, 1, 0.5), fallback = {screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0.33, 0, 0.67, 1)}}
-}
+        { apps = { 'Bitwarden' }, screen = hs.screen.primaryScreen(), center = true },
+        -- The full size of the primary screen.
+        {
+            apps = { 'Home Assistant', 'Logseq', 'Notion', 'Vivaldi' },
+            screen = hs.screen.primaryScreen(),
+            frame = hs.geometry.rect(0, 0, 1, 1),
+        },
+        {
+            app = 'Brave Browser',
+            screen = hs.screen.primaryScreen(),
+            frame = hs.geometry.rect(0, 0, 1, 1),
+            excludeWindows = { 'Picture in Picture' },
+        },
+        -- The full size of the secondary screen, fallback to the left a third of the primary screen.
+        {
+            apps = { 'Dash' },
+            screen = get_secondary_screen(),
+            frame = hs.geometry.rect(0, 0, 1, 1),
+            fallback = { screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 0.33, 1) },
+        },
+        -- The left a third of the primary screen.
+        {
+            apps = { 'EuDic', 'Hammerspoon', 'Telegram' },
+            screen = hs.screen.primaryScreen(),
+            frame = hs.geometry.rect(0, 0, 0.33, 1),
+            layouts = {
+                { screen = get_secondary_screen(), frame = hs.geometry.rect(0, 0, 1, 0.5) },
+                -- {screenUUID = 'XXXXXX-XXXXXX-XXXXXX-XXXXXX', frame = hs.geometry.rect(0, 0, 1, 0.5)}
+            },
+        },
+        {
+            app = 'Twitter',
+            screen = hs.screen.primaryScreen(),
+            frame = hs.geometry.rect(0, 0, 0.33, 1),
+            excludeWindows = { 'Tweet' },
+        },
+        {
+            app = 'WeChat',
+            screen = hs.screen.primaryScreen(),
+            frame = hs.geometry.rect(0, 0, 0.33, 1),
+            excludeWindows = { 'Log In' },
+            layouts = {
+                { screenUUID = '37D8832A-2D66-02CA-B9F7-8F30A301B230', frame = hs.geometry.rect(0, 0, 0.5, 1) },
+                { screenUUID = '5305866C-4D51-2169-0857-D6964E3302DB', frame = hs.geometry.rect(0, 0, 0.33, 1) },
+            },
+        },
+        -- The right two thirds of the primary screen.
+        {
+            apps = { 'OmniFocus', 'kitty' },
+            screen = hs.screen.primaryScreen(),
+            frame = hs.geometry.rect(0.33, 0, 0.67, 1),
+            layouts = {
+                { screenUUID = '37D8832A-2D66-02CA-B9F7-8F30A301B230', frame = nil },
+                { screenUUID = '5305866C-4D51-2169-0857-D6964E3302DB', frame = hs.geometry.rect(0.33, 0, 0.67, 1) },
+            },
+            excludeWindows = { '.* Preferences' },
+        },
+        -- The top half of the secondary screen, fallback to the left a third of the primary screen.
+        {
+            apps = { 'Slack' },
+            screen = get_secondary_screen(),
+            frame = hs.geometry.rect(0, 0, 1, 0.5),
+            fallback = { screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0, 0, 0.33, 1) },
+        },
+        -- The bottom half of the secondary screen, fallback to the right two thirds of the primary screen.
+        {
+            apps = { 'Safari' },
+            screen = get_secondary_screen(),
+            frame = hs.geometry.rect(0, 0.5, 1, 0.5),
+            fallback = { screen = hs.screen.primaryScreen(), frame = hs.geometry.rect(0.33, 0, 0.67, 1) },
+        },
+    }
+end
+
+local desktopLayout = init_desktop_layout()
 
 -- Wait for window to be ready
 local function wait_for_window_ready(appObject, callback)
@@ -95,7 +136,22 @@ local function apply_layout(window, layout)
         return
     end
 
-    logger.d('Apply layout `' .. hs.inspect(layout, {newline = '', indent = ' '}) .. '` for window "' .. window:title() .. '" (' .. window:id() .. ').')
+    local targetScreen = window:screen()
+    if layout.screen then
+        targetScreen = layout.screen
+    end
+
+    logger.d(
+        'Apply layout `'
+            .. hs.inspect(layout, { newline = '', indent = ' ' })
+            .. '` for window "'
+            .. window:title()
+            .. '" ('
+            .. window:id()
+            .. ') on screen "'
+            .. targetScreen:getUUID()
+            .. '".'
+    )
 
     if moveTypeByWindow[window:id()] == 'manually' then
         logger.d('Window "' .. window:title() .. '" is ignored for being manually resized.')
@@ -116,12 +172,10 @@ local function apply_layout(window, layout)
         return
     end
 
-    if layout.screen then
-        if layout.frame then
-            window:move(layout.frame, layout.screen, true)
-        else
-            window:moveToScreen(layout.screen, true)
-        end
+    if layout.frame then
+        window:move(layout.frame, targetScreen, true)
+    else
+        window:moveToScreen(targetScreen, true)
     end
 
     if layout.center == true then
@@ -132,7 +186,10 @@ local function apply_layout(window, layout)
 
     moveTypeByWindow[window:id()] = 'automatically'
 
-    logger.d('Placed ' .. window:application():name() .. ' (' .. window:title() .. ') to the ' .. hs.inspect(layout.frame, {newline = '', indent = ' '}) .. ' of the ' .. layout.screen:name())
+    logger.d('Placed ' .. window:application():name() .. ' (' .. window:title() .. ') to the '
+            .. hs.inspect(layout.frame, { newline = '', indent = ' ' })
+            .. ' of the ' .. targetScreen:name()
+    )
 end
 
 -- Get config from desktopLayout by app name
@@ -155,7 +212,10 @@ local function generate_layout(appConfig, screen, event)
     -- Return the pre-defined layout for the current screen.
     if appConfig.layouts then
         for _, screenLayout in ipairs(appConfig.layouts) do
-            if (screenLayout.screen and screenLayout.screen == screen) or (screenLayout.screenUUID and screenLayout.screenUUID == screen:getUUID()) then
+            if
+                (screenLayout.screen and screenLayout.screen == screen)
+                or (screenLayout.screenUUID and screenLayout.screenUUID == screen:getUUID())
+            then
                 layout.screen = screen
                 layout.frame = screenLayout.frame
                 layout.center = screenLayout.center
@@ -168,9 +228,13 @@ local function generate_layout(appConfig, screen, event)
     end
 
     if event == hs.window.filter.windowMoved or event == hs.application.watcher.activated then
-        -- Return nil when the default screen is not nil and not the current screen.
+        -- Return nil when the default screen is not nil and is not the current screen.
         if appConfig.screen and appConfig.screen ~= screen then
-            logger.d('The window is activated or moved or resized on the non-default screen ' .. screen:name() .. ', return nil for the layout.')
+            logger.d(
+                'The window is activated or moved or resized on the non-default screen '
+                    .. screen:name()
+                    .. ', return nil for the layout.'
+            )
             return nil
         end
     else
@@ -204,6 +268,7 @@ wf:subscribe(hs.window.filter.windowCreated, function(window, appName, event)
         return
     end
 
+    logger.d('---------------------------------------------------------------------------------------')
     logger.d('New window "' .. window:title() .. '" (' .. window:id() .. ') created for ' .. appName)
 
     previousScreenByWindow[window:id()] = window:screen():getUUID()
@@ -228,7 +293,16 @@ wf:subscribe(hs.window.filter.windowMoved, function(window, appName, event)
         moveTypeByWindow[window:id()] = 'manually'
     end
 
-    logger.d("Window " .. window:title() .. " (" .. window:id() .. ") has been moved " .. moveTypeByWindow[window:id()] .. ".")
+    logger.d('---------------------------------------------------------------------------------------')
+    logger.d(
+        'Window '
+            .. window:title()
+            .. ' ('
+            .. window:id()
+            .. ') has been moved '
+            .. moveTypeByWindow[window:id()]
+            .. '.'
+    )
 
     if moveTypeByWindow[window:id()] == 'automatically' then
         moveTypeByWindow[window:id()] = nil
@@ -246,7 +320,7 @@ wf:subscribe(hs.window.filter.windowMoved, function(window, appName, event)
             return
         end
 
-        logger.d("Window " .. window:title() .. " has been moved to screen: " .. window:screen():name())
+        logger.d('Window ' .. window:title() .. ' has been moved to screen: ' .. window:screen():name())
 
         apply_layout(window, generate_layout(config, window:screen(), event))
 
@@ -278,7 +352,16 @@ AppWatcher = hs.application.watcher.new(function(appName, eventType, appObject)
             return
         end
 
-        logger.d('The activated event is triggered for app "' .. appName .. '" window "' .. window:title() .. '" (' .. window:id() .. ').')
+        logger.d('---------------------------------------------------------------------------------------')
+        logger.d(
+            'The activated event is triggered for app "'
+                .. appName
+                .. '" window "'
+                .. window:title()
+                .. '" ('
+                .. window:id()
+                .. ').'
+        )
 
         previousScreenByWindow[window:id()] = window:screen():getUUID()
 
@@ -287,3 +370,11 @@ AppWatcher = hs.application.watcher.new(function(appName, eventType, appObject)
 end)
 
 AppWatcher:start()
+
+-- Screen watcher
+
+ScreenWatcher = hs.screen.watcher.new(function()
+    desktopLayout = init_desktop_layout()
+end)
+
+ScreenWatcher:start()
