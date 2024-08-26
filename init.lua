@@ -20,12 +20,16 @@ hs.ipc.cliInstall()
 require('modules/commons')
 require('modules/caffeine')
 require('modules/json_beautifier')
-require('modules/karabiner')
 require('modules/launcher')
 require('modules/noizio')
 require('modules/omnifocus')
 require('modules/system')
 require('modules/windows')
-require('modules/desktop_layout')
+
+local desktopLayoutSitter = require('modules/desktop_layout')
+desktopLayoutSitter:start()
+
+local karabinerProfileSwitcher = require('modules/karabiner')
+karabinerProfileSwitcher:start()
 
 hs.notify.show("Hammerspoon", "Hammerspoon loaded!", "")

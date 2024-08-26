@@ -4,6 +4,8 @@
 
 local logger = hs.logger.new('Launcher', 'debug')
 
+local desktopLayoutSitter = {}
+
 local previousScreenByWindow = {}
 local moveTypeByWindow = {}
 
@@ -268,7 +270,6 @@ wf:subscribe(hs.window.filter.windowCreated, function(window, appName, event)
         return
     end
 
-    logger.d('---------------------------------------------------------------------------------------')
     logger.d('New window "' .. window:title() .. '" (' .. window:id() .. ') created for ' .. appName)
 
     previousScreenByWindow[window:id()] = window:screen():getUUID()
@@ -293,7 +294,6 @@ wf:subscribe(hs.window.filter.windowMoved, function(window, appName, event)
         moveTypeByWindow[window:id()] = 'manually'
     end
 
-    logger.d('---------------------------------------------------------------------------------------')
     logger.d(
         'Window '
             .. window:title()
@@ -335,7 +335,7 @@ end)
 
 -- Application watcher
 
-AppWatcher = hs.application.watcher.new(function(appName, eventType, appObject)
+desktopLayoutSitter.appWatcher = hs.application.watcher.new(function(appName, eventType, appObject)
     if eventType ~= hs.application.watcher.activated then
         return
     end
@@ -352,7 +352,6 @@ AppWatcher = hs.application.watcher.new(function(appName, eventType, appObject)
             return
         end
 
-        logger.d('---------------------------------------------------------------------------------------')
         logger.d(
             'The activated event is triggered for app "'
                 .. appName
@@ -369,12 +368,15 @@ AppWatcher = hs.application.watcher.new(function(appName, eventType, appObject)
     end)
 end)
 
-AppWatcher:start()
-
 -- Screen watcher
 
-ScreenWatcher = hs.screen.watcher.new(function()
+desktopLayoutSitter.screenWatcher = hs.screen.watcher.new(function()
     desktopLayout = init_desktop_layout()
 end)
 
-ScreenWatcher:start()
+function desktopLayoutSitter:start()
+    self.appWatcher:start()
+    self.screenWatcher:start()
+end
+
+return desktopLayoutSitter

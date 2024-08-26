@@ -129,3 +129,13 @@ function copyOmniFocusSensibleInfo() {
 ### 咖啡因
 
 控制是否允许系统自动休眠。通过托盘图标中的菜单项开关。
+
+### 切换 Karabiner-Elements 配置方案
+
+* <kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd> + <kbd>K</kbd> 手动切换配置方案
+* 根据 App 自动切换:
+    ```lua
+    karabinerProfileSwitcher.appProfiles = {
+        ["game.exe"] = "PC Keyboard",
+    }
+    ```

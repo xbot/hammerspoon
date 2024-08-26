@@ -102,7 +102,7 @@ To disable the `desktop_layout` module, comment it out.
 
 Automatically format JSON string in the pasteboard. Toggle it in the menubar item.
 
-### 手动/自动收集网页到 OmniFocus
+### Manually/Automatic clipping web page to OmniFocus
 
 Manual web collection support Google Chrome / Arc Browser / Brave Browser / Vivaldi
 
@@ -131,3 +131,13 @@ Toggle it in the menubar item.
 ### Caffeine
 
 Toggle it in the menubar item.
+
+### Switching Karabiner-Elements Profiles
+
+* <kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd> + <kbd>K</kbd> Manually switching profiles.
+* Automatic switching based on apps:
+    ```lua
+    karabinerProfileSwitcher.appProfiles = {
+        ["game.exe"] = "PC Keyboard",
+    }
+    ```
