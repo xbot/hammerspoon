@@ -62,12 +62,12 @@ local applist = {
     -- { shortcut = 'Z', appname = 'MacVim' },
     { shortcut = '1', appname = 'OmniFocus' },
     { shortcut = '2', appname = 'ChatGPT' },
-    { shortcut = '3', appname = 'Kimi.ai' },
-    { shortcut = '4', appname = 'Copilot' },
+    { shortcut = '3', appname = 'DeepSeek' },
+    { shortcut = '4', appname = 'Grok' },
     { shortcut = '5', appname = 'Gemini' },
     { shortcut = 'A', appname = 'Arc' },
     { shortcut = 'C', appname = 'Visual Studio Code' },
-    { shortcut = 'D', appname = 'Dash' },
+    { shortcut = 'D', appname = 'Doubao' },
     { shortcut = 'E', appname = 'EuDic' },
     { shortcut = 'G', appname = 'Telegram' },
     { shortcut = 'I', appname = 'Anki' },
@@ -79,6 +79,7 @@ local applist = {
     { shortcut = 'O', appname = 'Obsidian' },
     { shortcut = 'Q', appname = 'Activity Monitor' },
     { shortcut = 'V', appname = 'Neovide' },
+    { shortcut = 'X', appname = 'XiaoHongShu' },
 }
 
 local machine_name = hs.host.localizedName()
@@ -89,7 +90,7 @@ local machine_name = hs.host.localizedName()
 local defaultBrowser = nil
 
 if string.find(machine_name, 'MacBook Air') or string.find(machine_name, 'iMac') then
-    defaultBrowser = 'Microsoft Edge'
+    defaultBrowser = 'Dia'
 else
     defaultBrowser = 'Google Chrome'
 end

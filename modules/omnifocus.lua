@@ -63,7 +63,7 @@ end)
 
 -- Press ctrl+opt+cmd+/ to open the quick entry dialog for bucket list.
 hotkey.bind(dk.hyper, '/', function()
-    hs.urlevent.openURL('omnifocus:///add?project=Wish&context=Shopping,Today')
+    hs.urlevent.openURL('omnifocus:///add?project=Bucket%20List&context=Shopping,Today')
 end)
 
 ---
