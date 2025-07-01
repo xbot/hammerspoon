@@ -10,9 +10,9 @@ package.path = hs.configdir
 -- Generate annotations for lua-language-server
 hs.loadSpoon('EmmyLua')
 
--- Watch for changes and do automatic reloadings.
-hs.loadSpoon('ReloadConfiguration')
-spoon.ReloadConfiguration:start()
+-- -- Watch for changes and do automatic reloadings.
+-- hs.loadSpoon('ReloadConfiguration')
+-- spoon.ReloadConfiguration:start()
 
 -- Install CLI commands
 hs.ipc.cliInstall()

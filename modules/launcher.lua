@@ -4,6 +4,7 @@ local fnutils = require('hs.fnutils')
 local grid = require('hs.grid')
 local hotkey = require('hs.hotkey')
 local window = require('hs.window')
+local dk = require('modules/decoration_keys')
 
 hs.application.enableSpotlightForNameSearches(true)
 
@@ -117,7 +118,13 @@ end
 -- Do mappings.
 fnutils.each(applist, function(entry)
     hotkey.bind({ 'alt' }, entry.shortcut, entry.appname, function()
-        -- application.launchOrFocus(entry.appname)
         toggle_application(entry.appname)
     end)
+end)
+
+--[[
+   [ Special Hotkeys
+   ]]
+hotkey.bind(dk.hyperCmdCtrl, '\\', '微信', function()
+    toggle_application('微信')
 end)
