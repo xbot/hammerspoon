@@ -66,6 +66,7 @@ local applist = {
     { shortcut = '3', appname = 'DeepSeek' },
     { shortcut = '4', appname = 'Grok' },
     { shortcut = '5', appname = 'Gemini' },
+    { shortcut = '6', appname = 'Kimi' },
     { shortcut = 'A', appname = 'Arc' },
     { shortcut = 'C', appname = 'Visual Studio Code' },
     { shortcut = 'D', appname = 'Doubao' },
@@ -120,11 +121,4 @@ fnutils.each(applist, function(entry)
     hotkey.bind({ 'alt' }, entry.shortcut, entry.appname, function()
         toggle_application(entry.appname)
     end)
-end)
-
---[[
-   [ Special Hotkeys
-   ]]
-hotkey.bind(dk.hyperCmdCtrl, '\\', '微信', function()
-    toggle_application('微信')
 end)
