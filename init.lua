@@ -26,6 +26,9 @@ require('modules/omnifocus')
 require('modules/system')
 require('modules/windows')
 
+local kittyAppearanceSwitcher = require('modules/kitty_appearance_switcher')
+kittyAppearanceSwitcher:start()
+
 local desktopLayoutSitter = require('modules/desktop_layout')
 desktopLayoutSitter:start()
 
