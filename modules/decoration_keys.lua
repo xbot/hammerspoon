@@ -1,10 +1,10 @@
-local M = {}
+local keys = {}
 
-M.hyper = { 'cmd', 'ctrl', 'alt' }
-M.hyperShift = { 'alt', 'shift' }
-M.hyperCtrl = { 'alt', 'ctrl' }
-M.hyperAlt = { 'ctrl', 'alt', 'shift' }
-M.hyperCmd = { 'alt', 'cmd' }
-M.hyperCmdCtrl = { 'cmd', 'ctrl' }
+keys.hyper = { 'cmd', 'ctrl', 'alt' }
+keys.hyperShift = { 'alt', 'shift' }
+keys.hyperCtrl = { 'alt', 'ctrl' }
+keys.hyperAlt = { 'ctrl', 'alt', 'shift' }
+keys.hyperCmd = { 'alt', 'cmd' }
+keys.hyperCmdCtrl = { 'cmd', 'ctrl' }
 
-return M
+return keys
