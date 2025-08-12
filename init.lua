@@ -21,13 +21,15 @@ require('modules/commons')
 require('modules/caffeine')
 require('modules/launcher')
 require('modules/noizio')
-require('modules/omnifocus')
 require('modules/system')
 require('modules/windows')
 
 -- Load API-based modules and start them
 local jsonBeautifier = require('modules/json_beautifier')
 jsonBeautifier:start()
+
+local omnifocus = require('modules/omnifocus')
+omnifocus:start()
 
 local kittyAppearanceSwitcher = require('modules/kitty_appearance_switcher')
 kittyAppearanceSwitcher:start()
