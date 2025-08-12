@@ -20,7 +20,6 @@ hs.ipc.cliInstall()
 require('modules/commons')
 require('modules/caffeine')
 require('modules/launcher')
-require('modules/noizio')
 require('modules/system')
 require('modules/windows')
 
@@ -30,6 +29,9 @@ jsonBeautifier:start()
 
 local omnifocus = require('modules/omnifocus')
 omnifocus:start()
+
+local noizioWatcher = require('modules/noizio')
+noizioWatcher:start()
 
 local kittyAppearanceSwitcher = require('modules/kitty_appearance_switcher')
 kittyAppearanceSwitcher:start()
