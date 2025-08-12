@@ -1,3 +1,7 @@
+---
+-- Handles general system-level functions and hotkeys.
+---
+
 local audiodevice = require('hs.audiodevice')
 local caffeinate = require('hs.caffeinate')
 local dk = require('modules/decoration_keys')

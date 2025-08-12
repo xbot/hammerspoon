@@ -1,3 +1,7 @@
+---
+-- Provides various integrations with OmniFocus.
+---
+
 local omnifocus = {}
 local logger = hs.logger.new('omnifocus', 'debug')
 

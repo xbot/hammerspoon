@@ -1,3 +1,7 @@
+---
+-- Binds hotkeys to launch or focus applications.
+---
+
 local appfinder = require('hs.appfinder')
 local application = require('hs.application')
 local fnutils = require('hs.fnutils')
@@ -8,7 +12,7 @@ local dk = require('modules/decoration_keys')
 
 hs.application.enableSpotlightForNameSearches(true)
 
-local logger = hs.logger.new('Launcher', 'debug')
+local logger = hs.logger.new('launcher', 'debug')
 
 grid.setMargins({ 0, 0 })
 

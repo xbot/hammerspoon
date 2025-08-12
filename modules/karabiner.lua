@@ -1,6 +1,10 @@
+---
+-- Switches Karabiner-Elements profiles automatically based on the active application.
+---
+
 local dk = require('modules/decoration_keys')
 local hotkey = require('hs.hotkey')
-local logger = hs.logger.new('Launcher', 'debug')
+local logger = hs.logger.new('karabiner', 'debug')
 
 hotkey.bind(dk.hyper, 'K', function()
     local configFile = os.getenv('HOME') .. '/.config/karabiner/karabiner.json'

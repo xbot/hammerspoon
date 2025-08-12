@@ -2,7 +2,7 @@
 -- Desktop layout
 --
 
-local logger = hs.logger.new('Launcher', 'debug')
+local logger = hs.logger.new('desktop_layout', 'debug')
 
 local desktopLayoutSitter = {}
 
