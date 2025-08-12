@@ -1,9 +1,10 @@
 ---
---- JSON beautifier
+-- JSON beautifier
 ---
+local beautifier = {}
+local logger = hs.logger.new('json_beautifier', 'debug')
 
-PBWatcher = nil
-
+local watcher = nil
 local jq_cmd = nil
 local last_formatted_json = nil
 local pasteboard = require('hs.pasteboard')
@@ -13,7 +14,8 @@ local function format_json_in_clipboard(json_string)
         local status = nil
         jq_cmd, status = hs.execute('which jq', true)
         if status == false then
-            hs.alert('Failed to find jq.')
+            logger.e('Failed to find jq.')
+            hs.alert('jq command not found. JSON beautifier will not work.')
             return
         end
         jq_cmd = jq_cmd:gsub("[\n\r]", "")
@@ -31,12 +33,30 @@ local function format_json_in_clipboard(json_string)
     last_formatted_json = output
 end
 
-if GetOption('json_beautifier', 'off') == 'on' then
-    PBWatcher = pasteboard.watcher.new(function(pasteboard_content)
-        if pasteboard_content ~= last_formatted_json and hs.json.decode(pasteboard_content) ~= nil then
-            format_json_in_clipboard(pasteboard_content)
-        end
-    end)
+function beautifier:start()
+    if watcher then
+        self:stop()
+    end
 
-    PBWatcher:start()
+    if GetOption('json_beautifier', 'off') == 'on' then
+        logger.i('Starting JSON beautifier watcher.')
+        watcher = pasteboard.watcher.new(function(pasteboard_content)
+            if pasteboard_content ~= last_formatted_json and hs.json.decode(pasteboard_content) ~= nil then
+                format_json_in_clipboard(pasteboard_content)
+            end
+        end)
+        watcher:start()
+    else
+        logger.i('JSON beautifier is disabled in settings.')
+    end
 end
+
+function beautifier:stop()
+    if watcher then
+        logger.i('Stopping JSON beautifier watcher.')
+        watcher:stop()
+        watcher = nil
+    end
+end
+
+return beautifier
