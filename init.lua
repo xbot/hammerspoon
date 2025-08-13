@@ -17,7 +17,10 @@ hs.loadSpoon('EmmyLua')
 -- Install CLI commands
 hs.ipc.cliInstall()
 
-require('modules/commons')
+-- Load and start the commons module first as others depend on it
+local commons = require('modules/commons')
+commons:start()
+
 require('modules/caffeine')
 require('modules/launcher')
 require('modules/system')

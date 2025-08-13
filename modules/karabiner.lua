@@ -2,9 +2,11 @@
 -- Switches Karabiner-Elements profiles automatically based on the active application.
 ---
 
-local dk = require('modules/decoration_keys')
+local commons = require('modules/commons')
 local hotkey = require('hs.hotkey')
-local logger = hs.logger.new('karabiner', 'debug')
+local dk = require('modules/decoration_keys')
+local MODULE_NAME = 'karabiner'
+commons.logger.registerModule(MODULE_NAME)
 
 hotkey.bind(dk.hyper, 'K', function()
     local configFile = os.getenv('HOME') .. '/.config/karabiner/karabiner.json'
@@ -53,7 +55,7 @@ local function getCurrentProfile()
     if status then
         return spoon.EmmyLua.trim(output)
     else
-        logger.e('Failed to get current Karabiner-Elements profile')
+        commons.logger.error(MODULE_NAME, 'Failed to get current Karabiner-Elements profile')
         return nil
     end
 end
@@ -61,34 +63,34 @@ end
 local function switchProfile(profileName)
     local output, status = hs.execute("'" .. karabinerCli .. "' --select-profile '" .. profileName .. "'")
     if status then
-        logger.i('Switched Karabiner-Elements profile to "' .. profileName .. '"')
+        commons.logger.info(MODULE_NAME, 'Switched Karabiner-Elements profile to "' .. profileName .. '"')
         return true
     else
-        logger.e('Failed to switch Karabiner-Elements profile to "' .. profileName .. '"')
+        commons.logger.error(MODULE_NAME, 'Failed to switch Karabiner-Elements profile to "' .. profileName .. '"')
         return false
     end
 end
 
 karabinerProfileSwitcher.appWatcher = hs.application.watcher.new(function(appName, eventType, app)
     if eventType == hs.application.watcher.activated then
-        logger.d('Activated application: "' .. appName .. '"')
+        commons.logger.debug(MODULE_NAME, 'Activated application: "' .. appName .. '"')
         local currentProfile = getCurrentProfile()
         if not currentProfile then return end
 
-        logger.d('Current Karabiner-Elements profile: "' .. currentProfile .. '"')
+        commons.logger.debug(MODULE_NAME, 'Current Karabiner-Elements profile: "' .. currentProfile .. '"')
 
         local targetProfile = karabinerProfileSwitcher.appProfiles[appName]
         if targetProfile then
             if currentProfile ~= targetProfile then
                 karabinerProfileSwitcher.previousProfile = currentProfile
                 if switchProfile(targetProfile) then
-                    logger.d('Saved previous profile: "' .. currentProfile .. '"')
+                    commons.logger.debug(MODULE_NAME, 'Saved previous profile: "' .. currentProfile .. '"')
                 end
             end
         elseif karabinerProfileSwitcher.previousProfile and karabinerProfileSwitcher.previousProfile ~= currentProfile then
             if switchProfile(karabinerProfileSwitcher.previousProfile) then
                 karabinerProfileSwitcher.previousProfile = nil
-                logger.d('Cleared previous profile after switching back')
+                commons.logger.debug(MODULE_NAME, 'Cleared previous profile after switching back')
             end
         end
     end
@@ -100,7 +102,7 @@ end
 
 function karabinerProfileSwitcher:setAppProfile(appName, profileName)
     self.appProfiles[appName] = profileName
-    logger.i('Updated profile mapping: "' .. appName .. '" -> "' .. profileName .. '"')
+    commons.logger.info(MODULE_NAME, 'Updated profile mapping: "' .. appName .. '" -> "' .. profileName .. '"')
 end
 
 return karabinerProfileSwitcher

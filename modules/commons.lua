@@ -1,20 +1,142 @@
----
---- Create a menubar icon providing utilities and initialize the settings.
+--
+-- Provides common utilities, settings management, and a centralized logger.
+-- This module follows a start/stop lifecycle pattern.
 ---
 
-MenubarItem = nil
-Settings = {}
+local commons = {}
+local MODULE_NAME = 'commons'
+
+commons.menubarItem = nil
+commons.settings = {}
+commons.logger = {}
 
 local config_file = '~/.hammerspoon/data/Config.json'
 local config_file_template = '~/.hammerspoon/data/initConfig.json'
-local version = 'v0.1.2'
+local version = 'v0.2.0'
 
-function GetOption(option, default_value)
-    if Settings[1][option] == nil then
-        return default_value
+local LOG_LEVELS = { error = 1, warn = 2, info = 3, debug = 4, verbose = 5 }
+
+local function get_log_level_name(levelNum)
+    for name, num in pairs(LOG_LEVELS) do
+        if num == levelNum then
+            return name
+        end
+    end
+    return tostring(levelNum)
+end
+
+-- --- Logger Implementation ---
+local loggers = {}
+
+-- This function is local as it should only be called from within this module
+local function rebuild_main_menu()
+    -- Since this function can be called from within a logger function,
+    -- we need to access the 'commons' logger directly to avoid loops.
+    -- Also handle case where commons logger is not yet initialized or doesn't have debug method
+    loggers[MODULE_NAME].d("Rebuilding Main Menu")
+
+    if not commons.menubarItem then
+        loggers[MODULE_NAME].d("commons.menubarItem is nil. Aborting menu rebuild.")
+        return
     end
 
-    return Settings[1][option]
+    -- 1. Build the debug submenu first
+    local debugSubMenu = {}
+    local moduleNames = {}
+    for name, _ in pairs(loggers) do
+        table.insert(moduleNames, name)
+    end
+    table.sort(moduleNames)
+
+    loggers[MODULE_NAME].d("Registered modules for submenu: " .. table.concat(moduleNames, ", "))
+
+    if #moduleNames == 0 then
+        table.insert(debugSubMenu, { title = "No modules registered", disabled = true })
+    end
+
+    for _, name in ipairs(moduleNames) do
+        local levelNum = loggers[name].getLogLevel()
+        local levelStr = get_log_level_name(levelNum)
+        table.insert(debugSubMenu, {
+            title = name .. " (" .. levelStr .. ")",
+            checked = (levelNum == LOG_LEVELS.debug),
+            fn = function()
+                loggers[MODULE_NAME].d("Toggling log level for " .. name)
+                if loggers[name].getLogLevel() == LOG_LEVELS.info then
+                    loggers[name].setLogLevel(LOG_LEVELS.debug)
+                else
+                    loggers[name].setLogLevel(LOG_LEVELS.info)
+                end
+                rebuild_main_menu() -- Rebuild the whole menu to reflect the change
+            end
+        })
+    end
+
+    -- 2. Build the main menu, inserting the debug submenu
+    local mainMenuData = {
+        { title = 'Reload Settings', fn = function() hs.reload() end },
+        { title = 'Open console', fn = function() hs.openConsole() end },
+        { title = 'Relaunch', fn = function() hs.relaunch() end },
+        { title = '-' },
+        { title = '屏幕取色', fn = function() open_color_picker() end },
+        { title = '咖啡因：' .. commons.getOption('caffeine', 'off'), fn = function() toggle_caffeine() end },
+        { title = '格式化剪贴板 JSON ：' .. commons.getOption('json_beautifier', 'off'), fn = function() toggle_json_beautifier() end },
+        { title = '自动添加 OmniFocus 任务：' .. commons.getOption('watch_omnifocus_sensible_data', 'off'), fn = function() toggle_omnifocus_sensible_data_watcher() end },
+        { title = '-' },
+        { title = 'Debug Log Levels', menu = debugSubMenu },
+        { title = '-' },
+        {
+            title = '关于',
+            fn = function()
+                if hs.dialog.blockAlert('当前版本：' .. version, '整理了一些能够提高效率的脚本，打开主页查看详细说明。', '确定', '取消', 'informational') == '确定' then
+                    hs.urlevent.openURL('https://github.com/xbot/hammerspoon')
+                end
+            end,
+        },
+    }
+
+    commons.menubarItem:setMenu(mainMenuData)
+    loggers[MODULE_NAME].d("Finished Rebuilding Main Menu")
+end
+
+function commons.logger.registerModule(name)
+    if not loggers[name] then
+        loggers[MODULE_NAME].d("Registering module: " .. name)
+        loggers[name] = hs.logger.new(name, 'info')
+        rebuild_main_menu()
+    end
+end
+
+function commons.logger.info(module, ...)
+    if loggers[module] then
+        loggers[module].i(...)
+    else
+        print(string.format("[WARN] Module '%s' is not registered with the logger. Message: %s", module, table.concat({...}, '\t')))
+    end
+end
+
+function commons.logger.debug(module, ...)
+    if loggers[module] then
+        loggers[module].d(...)
+    else
+        print(string.format("[WARN] Module '%s' is not registered with the logger. Message: %s", module, table.concat({...}, '\t')))
+    end
+end
+
+function commons.logger.error(module, ...)
+    if loggers[module] then
+        loggers[module].e(...)
+    else
+        print(string.format("[ERROR] Module '%s' is not registered with the logger. Message: %s", module, table.concat({...}, '\t')))
+    end
+end
+-- --- End Logger Implementation ---
+
+function commons.getOption(option, default_value)
+    if commons.settings[1] == nil or commons.settings[1][option] == nil then
+        return default_value
+    end
+    return commons.settings[1][option]
 end
 
 local function file_exists(path)
@@ -31,142 +153,86 @@ local function copy_file(source, destination)
 end
 
 local function toggle_caffeine()
-    if Settings[1].caffeine == 'on' then
-        Settings[1].caffeine = 'off'
+    if commons.settings[1].caffeine == 'on' then
+        commons.settings[1].caffeine = 'off'
     else
-        Settings[1].caffeine = 'on'
+        commons.settings[1].caffeine = 'on'
     end
-
-    hs.json.write(Settings, config_file, true, true)
+    hs.json.write(commons.settings, config_file, true, true)
     hs.reload()
 end
 
 local function toggle_json_beautifier()
-    if Settings[1].json_beautifier == 'on' then
-        Settings[1].json_beautifier = 'off'
+    if commons.settings[1].json_beautifier == 'on' then
+        commons.settings[1].json_beautifier = 'off'
     else
-        Settings[1].json_beautifier = 'on'
+        commons.settings[1].json_beautifier = 'on'
     end
-
-    hs.json.write(Settings, config_file, true, true)
+    hs.json.write(commons.settings, config_file, true, true)
     hs.reload()
 end
 
 local function toggle_omnifocus_sensible_data_watcher()
-    if Settings[1].watch_omnifocus_sensible_data == 'on' then
-        Settings[1].watch_omnifocus_sensible_data = 'off'
+    if commons.settings[1].watch_omnifocus_sensible_data == 'on' then
+        commons.settings[1].watch_omnifocus_sensible_data = 'off'
     else
-        Settings[1].watch_omnifocus_sensible_data = 'on'
+        commons.settings[1].watch_omnifocus_sensible_data = 'on'
     end
-
-    hs.json.write(Settings, config_file, true, true)
+    hs.json.write(commons.settings, config_file, true, true)
     hs.reload()
 end
 
 local function open_color_picker()
     local color_dialog = hs.dialog.color
-
     hs.openConsole(true)
-
     color_dialog.show()
     color_dialog.mode('RGB')
-    color_dialog.callback(function(a, b)
+    color_dialog.callback(function(a, b) 
         if b then
             hs.closeConsole()
         end
     end)
-
     hs.closeConsole()
 end
 
-local function create_menu()
-    MenubarItem = hs.menubar.new()
-    MenubarItem:setTitle('')
-    MenubarItem:setIcon('~/.hammerspoon/icon/input_u.pdf')
-    MenubarItem:setMenu({
-        {
-            title = 'Reload Settings',
-            fn = function()
-                hs.reload()
-            end,
-        },
-        {
-            title = 'Open console',
-            fn = function()
-                hs.openConsole()
-            end,
-        },
-        {
-            title = 'Relaunch',
-            fn = function()
-                hs.relaunch()
-            end,
-        },
-        { title = '-' },
-        {
-            title = '屏幕取色',
-            fn = function()
-                open_color_picker()
-            end,
-        },
-        {
-            title = '咖啡因：' .. GetOption('caffeine', 'off'),
-            fn = function()
-                toggle_caffeine()
-            end,
-        },
-        {
-            title = '格式化剪贴板 JSON ：' .. GetOption('json_beautifier', 'off'),
-            fn = function()
-                toggle_json_beautifier()
-            end,
-        },
-        {
-            title = '自动添加 OmniFocus 任务：' .. GetOption('watch_omnifocus_sensible_data', 'off'),
-            fn = function()
-                toggle_omnifocus_sensible_data_watcher()
-            end,
-        },
-        { title = '-' },
-        {
-            title = '关于',
-            fn = function()
-                if
-                    hs.dialog.blockAlert(
-                        '当前版本：' .. version,
-                        '整理了一些能够提高效率的脚本，打开主页查看详细说明。',
-                        '确定',
-                        '取消',
-                        'informational'
-                    ) == '确定'
-                then
-                    hs.urlevent.openURL('https://github.com/xbot/hammerspoon')
-                end
-            end,
-        },
-    })
-end
+-- Lifecycle Functions
+function commons:start()
+    hs.console.clearConsole()    
+    -- Register commons module itself for logging.
+    commons.logger.registerModule(MODULE_NAME)
 
-local function run()
-    hs.console.clearConsole()
+    commons.logger.info(MODULE_NAME, "Starting commons module.")
 
-    if file_exists(config_file) == false then
-        -- io.open requires absolute file path.
+    if not file_exists(config_file) then
         local source = hs.fs.pathToAbsolute(config_file_template)
         local destination = string.gsub(source, 'initConfig.json$', 'Config.json')
         copy_file(source, destination)
     end
 
     if hs.json.read(config_file) ~= nil then
-        Settings = hs.json.read(config_file)
+        commons.settings = hs.json.read(config_file)
     end
 
-    create_menu()
+    -- Create the menubar item
+    if not commons.menubarItem then
+        commons.menubarItem = hs.menubar.new()
+        commons.menubarItem:setTitle('')
+        commons.menubarItem:setIcon('~/.hammerspoon/icon/input_u.pdf')
+    end
 
-    -- Set the global alert style
+    rebuild_main_menu()
+
     hs.alert.defaultStyle.strokeColor = { white = 1, alpha = 0 }
     hs.alert.defaultStyle.fillColor = { white = 0.05, alpha = 0.75 }
     hs.alert.defaultStyle.radius = 10
 end
 
-run()
+function commons:stop()
+    commons.logger.info(MODULE_NAME, "Stopping commons module.")
+    if commons.menubarItem then
+        commons.menubarItem:delete()
+        commons.menubarItem = nil
+    end
+end
+
+return commons

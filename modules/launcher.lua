@@ -2,6 +2,10 @@
 -- Binds hotkeys to launch or focus applications.
 ---
 
+local commons = require('modules/commons')
+local MODULE_NAME = 'launcher'
+commons.logger.registerModule(MODULE_NAME)
+
 local appfinder = require('hs.appfinder')
 local application = require('hs.application')
 local fnutils = require('hs.fnutils')
@@ -12,8 +16,6 @@ local dk = require('modules/decoration_keys')
 
 hs.application.enableSpotlightForNameSearches(true)
 
-local logger = hs.logger.new('launcher', 'debug')
-
 grid.setMargins({ 0, 0 })
 
 -- Toggle an application between being the frontmost app, and being hidden
@@ -21,17 +23,21 @@ local function toggle_application(app_names)
     local app = nil
     local app_name = nil
 
+    commons.logger.debug(MODULE_NAME, "Toggling application:", app_names)
+
     if type(app_names) == 'table' then
         for i = 1, #app_names do
             app = appfinder.appFromName(app_names[i])
             if app ~= nil then
                 app_name = app_names[i]
+                commons.logger.debug(MODULE_NAME, "Found installed app in list:", app_name)
                 break
             end
         end
 
         if not app_name then
             app_name = app_names[1]
+            commons.logger.debug(MODULE_NAME, "No installed app found in list, defaulting to first entry:", app_name)
         end
     elseif type(app_names) == 'string' then
         app = appfinder.appFromName(app_names)
@@ -42,14 +48,17 @@ local function toggle_application(app_names)
     end
 
     if not app or not app:mainWindow() then
+        commons.logger.debug(MODULE_NAME, "Launching or focusing", app_name)
         application.launchOrFocus(app_name)
         return
     else
         local mainwin = app:mainWindow()
 
         if mainwin == window.focusedWindow() then
+            commons.logger.debug(MODULE_NAME, "Hiding", app_name)
             mainwin:application():hide()
         else
+            commons.logger.debug(MODULE_NAME, "Activating", app_name)
             mainwin:application():activate(true)
             mainwin:application():unhide()
             mainwin:focus()

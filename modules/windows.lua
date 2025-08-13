@@ -2,6 +2,10 @@
 -- Window management
 --
 
+local commons = require('modules/commons')
+local MODULE_NAME = 'windows'
+commons.logger.registerModule(MODULE_NAME)
+
 local alert = require('hs.alert')
 local dk = require('modules/decoration_keys')
 local fnutils = require('hs.fnutils')
@@ -21,10 +25,11 @@ local function is_in_screen(screen, win)
     return win:screen() == screen
 end
 
+-- Get windows within screen, ordered from front to back.
+-- If no windows exist, bring focus to desktop. Otherwise, set focus on
+-- front-most application window.
 local function focus_screen(screen)
-    -- Get windows within screen, ordered from front to back.
-    -- If no windows exist, bring focus to desktop. Otherwise, set focus on
-    -- front-most application window.
+    commons.logger.debug(MODULE_NAME, "Focusing screen:", screen:name())
     local windows = fnutils.filter(window.orderedWindows(), fnutils.partial(is_in_screen, screen))
     local windowToFocus = #windows > 0 and windows[1] or window.desktop()
     windowToFocus:focus()
@@ -45,10 +50,17 @@ local frameCache = {}
 -- toggle a window between its normal size, and being maximized
 local function toggle_maximize()
     local win = window.focusedWindow()
+    if not win then
+        commons.logger.debug(MODULE_NAME, "No focused window to toggle maximize")
+        return
+    end
+
     if frameCache[win:id()] then
+        commons.logger.debug(MODULE_NAME, "Restoring window to original frame", win:title())
         win:setFrame(frameCache[win:id()])
         frameCache[win:id()] = nil
     else
+        commons.logger.debug(MODULE_NAME, "Maximizing window", win:title())
         frameCache[win:id()] = win:frame()
         win:maximize()
     end
@@ -56,8 +68,10 @@ end
 
 -- left half
 hotkey.bind(dk.hyperCtrl, ',', function()
-    if window.focusedWindow() then
-        window.focusedWindow():moveToUnit(layout.left50)
+    local win = window.focusedWindow()
+    if win then
+        commons.logger.debug(MODULE_NAME, "Moving window to left 50%", win:title())
+        win:moveToUnit(layout.left50)
     else
         alert.show('No active window')
     end
@@ -65,29 +79,43 @@ end)
 
 -- right half
 hotkey.bind(dk.hyperCtrl, '.', function()
-    window.focusedWindow():moveToUnit(layout.right50)
+    local win = window.focusedWindow()
+    if win then
+        commons.logger.debug(MODULE_NAME, "Moving window to right 50%", win:title())
+        win:moveToUnit(layout.right50)
+    end
 end)
 
 -- top half
 hotkey.bind(dk.hyperCtrl, "J", function()
-window.focusedWindow():moveToUnit'[0,0,100,50]'
+    local win = window.focusedWindow()
+    if win then
+        commons.logger.debug(MODULE_NAME, "Moving window to top 50%", win:title())
+        win:moveToUnit'[0,0,100,50]'
+    end
 end)
 
 -- bottom half
 hotkey.bind(dk.hyperCtrl, "K", function()
-window.focusedWindow():moveToUnit'[0,50,100,100]'
+    local win = window.focusedWindow()
+    if win then
+        commons.logger.debug(MODULE_NAME, "Moving window to bottom 50%", win:title())
+        win:moveToUnit'[0,50,100,100]'
+    end
 end)
 
 -- right three quarters
 hotkey.bind(dk.hyperCtrl, 'L', function()
-    if window.focusedWindow() then
+    local win = window.focusedWindow()
+    if win then
         local unit = layout.right75
 
         if is_screen_vertical() then
             unit = geometry.rect(0, 0, 1, 0.75)
         end
 
-        window.focusedWindow():moveToUnit(unit)
+        commons.logger.debug(MODULE_NAME, "Moving window to right 75%", win:title())
+        win:moveToUnit(unit)
     else
         alert.show('No active window')
     end
@@ -95,14 +123,16 @@ end)
 
 -- left a quarter
 hotkey.bind(dk.hyperCtrl, 'R', function()
-    if window.focusedWindow() then
+    local win = window.focusedWindow()
+    if win then
         local unit = layout.left25
 
         if is_screen_vertical() then
             unit = geometry.rect(0, 0.75, 1, 0.25)
         end
 
-        window.focusedWindow():moveToUnit(unit)
+        commons.logger.debug(MODULE_NAME, "Moving window to left 25%", win:title())
+        win:moveToUnit(unit)
     else
         alert.show('No active window')
     end
@@ -110,14 +140,16 @@ end)
 
 -- right two thirds
 hotkey.bind(dk.hyperCtrl, 'E', function()
-    if window.focusedWindow() then
+    local win = window.focusedWindow()
+    if win then
         local unit = geometry.rect(0.33, 0, 0.67, 1)
 
         if is_screen_vertical() then
             unit = geometry.rect(0, 0, 1, 0.67)
         end
 
-        window.focusedWindow():moveToUnit(unit)
+        commons.logger.debug(MODULE_NAME, "Moving window to right 67%", win:title())
+        win:moveToUnit(unit)
     else
         alert.show('No active window')
     end
@@ -125,14 +157,16 @@ end)
 
 -- left a third
 hotkey.bind(dk.hyperCtrl, 'G', function()
-    if window.focusedWindow() then
+    local win = window.focusedWindow()
+    if win then
         local unit = geometry.rect(0, 0, 0.33, 1)
 
         if is_screen_vertical() then
             unit = geometry.rect(0, 0.67, 1, 0.33)
         end
 
-        window.focusedWindow():moveToUnit(unit)
+        commons.logger.debug(MODULE_NAME, "Moving window to left 33%", win:title())
+        win:moveToUnit(unit)
     else
         alert.show('No active window')
     end
@@ -165,7 +199,11 @@ end)
 
 -- center window
 hotkey.bind(dk.hyperCtrl, 'C', function()
-    window.focusedWindow():centerOnScreen()
+    local win = window.focusedWindow()
+    if win then
+        commons.logger.debug(MODULE_NAME, "Centering window", win:title())
+        win:centerOnScreen()
+    end
 end)
 
 -- maximize window
@@ -175,6 +213,7 @@ end)
 
 -- display a keyboard hint for switching focus to each window
 hotkey.bind(dk.hyperShift, '/', function()
+    commons.logger.debug(MODULE_NAME, "Showing window hints")
     hints.windowHints()
     -- Display current application window
     -- hints.windowHints(hs.window.focusedWindow():application():allWindows())
@@ -185,12 +224,20 @@ end)
 
 -- move active window to previous monitor
 hotkey.bind(dk.hyper, 'Left', function()
-    window.focusedWindow():moveOneScreenWest()
+    local win = window.focusedWindow()
+    if win then
+        commons.logger.debug(MODULE_NAME, "Moving window west", win:title())
+        win:moveOneScreenWest()
+    end
 end)
 
 -- move active window to next monitor
 hotkey.bind(dk.hyper, 'Right', function()
-    window.focusedWindow():moveOneScreenEast()
+    local win = window.focusedWindow()
+    if win then
+        commons.logger.debug(MODULE_NAME, "Moving window east", win:title())
+        win:moveOneScreenEast()
+    end
 end)
 
 -- move cursor to previous monitor
@@ -234,10 +281,11 @@ end)
 -- end)
 
 hotkey.bind(dk.hyperCtrl, 'X', function()
-    if window.focusedWindow() then
+    local win = window.focusedWindow()
+    if win then
         local size = geometry.size(1280, 720)
-
-        window.focusedWindow():setSize(size)
+        commons.logger.debug(MODULE_NAME, "Resizing window to 1280x720", win:title())
+        win:setSize(size)
     else
         alert.show('No active window')
     end

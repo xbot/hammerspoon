@@ -2,7 +2,9 @@
 -- Automatically switch kitty terminal theme based on system appearance (Dark/Light Mode).
 ---
 local switcher = {}
-local logger = hs.logger.new('kitty_appearance_switcher', 'debug')
+local commons = require('modules/commons')
+local MODULE_NAME = 'kitty_appearance_switcher'
+commons.logger.registerModule(MODULE_NAME)
 local watcher
 
 local lightThemePath = os.getenv('HOME') .. '/.config/kitty/colorscheme/light.conf'
@@ -26,7 +28,7 @@ local function switchKittyTheme(isDark)
     -- Check if the theme file exists
     local f = io.open(themePath, "r")
     if not f then
-        logger.e("Theme file not found: " .. themePath)
+        commons.logger.error(MODULE_NAME, "Theme file not found: " .. themePath)
         return
     end
     f:close()
@@ -43,7 +45,7 @@ local function switchKittyTheme(isDark)
     end
 
     if not socketFile or socketFile == "" then
-        logger.e("No kitty socket found matching pattern: /tmp/kitty-" .. userName .. "-*")
+        commons.logger.error(MODULE_NAME, "No kitty socket found matching pattern: /tmp/kitty-" .. userName .. "-*")
         return
     end
 
@@ -53,9 +55,9 @@ local function switchKittyTheme(isDark)
     hs.task.new("/bin/bash", function(exitCode, stdOut, stdErr)
         if exitCode == 0 then
             local themeType = isDark and "dark" or "light"
-            logger.i("Successfully switched to " .. themeType .. " theme")
+            commons.logger.info(MODULE_NAME, "Successfully switched to " .. themeType .. " theme")
         else
-            logger.e("Failed to switch theme: " .. (stdErr or "Unknown error"))
+            commons.logger.error(MODULE_NAME, "Failed to switch theme: " .. (stdErr or "Unknown error"))
         end
     end, {"-c", command}):start()
 end
@@ -72,7 +74,7 @@ function switcher:start()
     end
     -- Use distributednotifications to listen for theme changes
     watcher = hs.distributednotifications.new(function(name, object, userInfo)
-        logger.i("System appearance change detected: " .. tostring(name))
+        commons.logger.info(MODULE_NAME, "System appearance change detected: " .. tostring(name))
         -- Add a delay to ensure the system theme has completely switched
         hs.timer.doAfter(0.5, onAppearanceChange)
     end, "AppleInterfaceThemeChangedNotification")
@@ -81,7 +83,7 @@ function switcher:start()
 
     onAppearanceChange()
 
-    logger.i("Kitty theme auto-switcher started")
+    commons.logger.info(MODULE_NAME, "Kitty theme auto-switcher started")
 end
 
 function switcher:stop()

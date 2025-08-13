@@ -1,8 +1,9 @@
 --
 -- Desktop layout
 --
-
-local logger = hs.logger.new('desktop_layout', 'debug')
+local commons = require('modules/commons')
+local MODULE_NAME = 'desktop_layout'
+commons.logger.registerModule(MODULE_NAME)
 
 local desktopLayoutSitter = {}
 
@@ -134,7 +135,7 @@ end
 -- Move window to designated position
 local function apply_layout(window, layout)
     if not layout then
-        logger.d('Leave window "' .. window:title() .. '" (' .. window:id() .. ') stay put.')
+        commons.logger.debug(MODULE_NAME, 'Leave window "' .. window:title() .. '" (' .. window:id() .. ') stay put.')
         return
     end
 
@@ -143,7 +144,7 @@ local function apply_layout(window, layout)
         targetScreen = layout.screen
     end
 
-    logger.d(
+    commons.logger.debug(MODULE_NAME,
         'Apply layout `'
             .. hs.inspect(layout, { newline = '', indent = ' ' })
             .. '` for window "'
@@ -156,7 +157,7 @@ local function apply_layout(window, layout)
     )
 
     if moveTypeByWindow[window:id()] == 'manually' then
-        logger.d('Window "' .. window:title() .. '" is ignored for being manually resized.')
+        commons.logger.debug(MODULE_NAME, 'Window "' .. window:title() .. '" is ignored for being manually resized.')
         return
     end
 
@@ -170,7 +171,7 @@ local function apply_layout(window, layout)
     end
 
     if shouldExclude then
-        logger.d('Window "' .. window:title() .. '" is ignored by the "excludeWindows" patterns.')
+        commons.logger.debug(MODULE_NAME, 'Window "' .. window:title() .. '" is ignored by the "excludeWindows" patterns.')
         return
     end
 
@@ -188,7 +189,7 @@ local function apply_layout(window, layout)
 
     moveTypeByWindow[window:id()] = 'automatically'
 
-    logger.d('Placed ' .. window:application():name() .. ' (' .. window:title() .. ') to the '
+    commons.logger.debug(MODULE_NAME, 'Placed ' .. window:application():name() .. ' (' .. window:title() .. ') to the '
             .. hs.inspect(layout.frame, { newline = '', indent = ' ' })
             .. ' of the ' .. targetScreen:name()
     )
@@ -222,7 +223,7 @@ local function generate_layout(appConfig, screen, event)
                 layout.frame = screenLayout.frame
                 layout.center = screenLayout.center
 
-                logger.d('Hit pre-defined layout on screen ' .. screen:name() .. '.')
+                commons.logger.debug(MODULE_NAME, 'Hit pre-defined layout on screen ' .. screen:name() .. '.')
 
                 return layout
             end
@@ -232,7 +233,7 @@ local function generate_layout(appConfig, screen, event)
     if event == hs.window.filter.windowMoved or event == hs.application.watcher.activated then
         -- Return nil when the default screen is not nil and is not the current screen.
         if appConfig.screen and appConfig.screen ~= screen then
-            logger.d(
+            commons.logger.debug(MODULE_NAME,
                 'The window is activated or moved or resized on the non-default screen '
                     .. screen:name()
                     .. ', return nil for the layout.'
@@ -254,7 +255,7 @@ local function generate_layout(appConfig, screen, event)
                 layout.center = appConfig.fallback.center
             end
 
-            logger.d('Use the fallback configuration.')
+            commons.logger.debug(MODULE_NAME, 'Use the fallback configuration.')
         end
     end
 
@@ -270,7 +271,7 @@ wf:subscribe(hs.window.filter.windowCreated, function(window, appName, event)
         return
     end
 
-    logger.d('New window "' .. window:title() .. '" (' .. window:id() .. ') created for ' .. appName)
+    commons.logger.debug(MODULE_NAME, 'New window "' .. window:title() .. '" (' .. window:id() .. ') created for ' .. appName)
 
     previousScreenByWindow[window:id()] = window:screen():getUUID()
 
@@ -294,7 +295,7 @@ wf:subscribe(hs.window.filter.windowMoved, function(window, appName, event)
         moveTypeByWindow[window:id()] = 'manually'
     end
 
-    logger.d(
+    commons.logger.debug(MODULE_NAME,
         'Window '
             .. window:title()
             .. ' ('
@@ -320,7 +321,7 @@ wf:subscribe(hs.window.filter.windowMoved, function(window, appName, event)
             return
         end
 
-        logger.d('Window ' .. window:title() .. ' has been moved to screen: ' .. window:screen():name())
+        commons.logger.debug(MODULE_NAME, 'Window ' .. window:title() .. ' has been moved to screen: ' .. window:screen():name())
 
         apply_layout(window, generate_layout(config, window:screen(), event))
 
@@ -352,7 +353,7 @@ desktopLayoutSitter.appWatcher = hs.application.watcher.new(function(appName, ev
             return
         end
 
-        logger.d(
+        commons.logger.debug(MODULE_NAME,
             'The activated event is triggered for app "'
                 .. appName
                 .. '" window "'
