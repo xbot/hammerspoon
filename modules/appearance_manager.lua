@@ -21,18 +21,7 @@ local function switchHammerspoonConsoleTheme(isDark)
     -- Hammerspoon console supports dark mode natively on macOS
     -- This will automatically switch based on system appearance
     hs.console.darkMode(isDark)
-    
-    -- Also set the console style to match the theme
-    if isDark then
-        -- Dark theme styling
-        hs.console.consoleFont("Menlo", 12)
-        hs.console.alpha(0.95)
-    else
-        -- Light theme styling
-        hs.console.consoleFont("Menlo", 12)
-        hs.console.alpha(0.95)
-    end
-    
+
     commons.logger.info(MODULE_NAME, "Switched Hammerspoon console to " .. (isDark and "dark" or "light") .. " theme.")
 end
 
@@ -115,12 +104,12 @@ function manager:start()
     if watcher then
         watcher:stop()
     end
-    
+
     -- Register the built-in handlers
     self.register_handler(switchHammerspoonConsoleTheme)
     self.register_handler(switchKittyTheme)
     self.register_handler(switchNeovimTheme)
-    
+
     watcher = hs.distributednotifications.new(function(name, object, userInfo)
         commons.logger.info(MODULE_NAME, "System appearance change detected: " .. tostring(name))
         hs.timer.doAfter(0.5, onAppearanceChange)

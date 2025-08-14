@@ -7,6 +7,8 @@ package.path = hs.configdir
     .. '/Spoons/?.spoon/init.lua;'
     .. package.path
 
+hs.console.consoleFont({name="Menlo", size=14})
+
 -- Generate annotations for lua-language-server
 hs.loadSpoon('EmmyLua')
 

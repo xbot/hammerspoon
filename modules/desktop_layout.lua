@@ -72,7 +72,7 @@ local function init_desktop_layout()
             screen = hs.screen.primaryScreen(),
             frame = hs.geometry.rect(0, 0, 0.33, 1),
             layouts = {
-                { screen = get_secondary_screen(), frame = hs.geometry.rect(0, 0, 1, 0.5) },
+                -- { screen = get_secondary_screen(), frame = hs.geometry.rect(0, 0, 1, 0.5) },
                 -- {screenUUID = 'XXXXXX-XXXXXX-XXXXXX-XXXXXX', frame = hs.geometry.rect(0, 0, 1, 0.5)}
             },
         },
@@ -139,23 +139,6 @@ local function apply_layout(window, layout)
         return
     end
 
-    local targetScreen = window:screen()
-    if layout.screen then
-        targetScreen = layout.screen
-    end
-
-    commons.logger.debug(MODULE_NAME,
-        'Apply layout `'
-            .. hs.inspect(layout, { newline = '', indent = ' ' })
-            .. '` for window "'
-            .. window:title()
-            .. '" ('
-            .. window:id()
-            .. ') on screen "'
-            .. targetScreen:getUUID()
-            .. '".'
-    )
-
     if moveTypeByWindow[window:id()] == 'manually' then
         commons.logger.debug(MODULE_NAME, 'Window "' .. window:title() .. '" is ignored for being manually resized.')
         return
@@ -169,11 +152,19 @@ local function apply_layout(window, layout)
             break
         end
     end
-
     if shouldExclude then
         commons.logger.debug(MODULE_NAME, 'Window "' .. window:title() .. '" is ignored by the "excludeWindows" patterns.')
         return
     end
+
+    local targetScreen = window:screen()
+    if layout.screen then
+        targetScreen = layout.screen
+    end
+
+    commons.logger.debug(MODULE_NAME,
+        'Apply layout for window "' .. window:title() .. '" (' .. window:id() .. ') on screen "' .. targetScreen:getUUID() .. '": `' .. hs.inspect(layout, { newline = '', indent = ' ' }) .. '` .'
+    )
 
     if layout.frame then
         window:move(layout.frame, targetScreen, true)
@@ -193,6 +184,20 @@ local function apply_layout(window, layout)
             .. hs.inspect(layout.frame, { newline = '', indent = ' ' })
             .. ' of the ' .. targetScreen:name()
     )
+end
+
+local layoutTimers = {}
+
+local function apply_layout_debounced(window, layout)
+    local windowId = window:id()
+    if layoutTimers[windowId] then
+        layoutTimers[windowId]:stop()
+    end
+
+    layoutTimers[windowId] = hs.timer.doAfter(0.2, function()
+        apply_layout(window, layout)
+        layoutTimers[windowId] = nil
+    end)
 end
 
 -- Get config from desktopLayout by app name
@@ -280,7 +285,7 @@ wf:subscribe(hs.window.filter.windowCreated, function(window, appName, event)
         return
     end
 
-    apply_layout(window, generate_layout(config, window:screen(), event))
+    apply_layout_debounced(window, generate_layout(config, window:screen(), event))
 
     -- The windowMoved event won't be triggered here.
     moveTypeByWindow[window:id()] = nil
@@ -296,13 +301,7 @@ wf:subscribe(hs.window.filter.windowMoved, function(window, appName, event)
     end
 
     commons.logger.debug(MODULE_NAME,
-        'Window '
-            .. window:title()
-            .. ' ('
-            .. window:id()
-            .. ') has been moved '
-            .. moveTypeByWindow[window:id()]
-            .. '.'
+        'Window ' .. window:title() .. ' (' .. window:id() .. ') has been moved ' .. moveTypeByWindow[window:id()] .. '.'
     )
 
     if moveTypeByWindow[window:id()] == 'automatically' then
@@ -312,8 +311,8 @@ wf:subscribe(hs.window.filter.windowMoved, function(window, appName, event)
     local prevScreenUUID = previousScreenByWindow[window:id()]
     local newScreenUUID = window:screen():getUUID()
 
+    -- Apply the corresponding layout when a window is manually moved to another screen.
     if newScreenUUID ~= prevScreenUUID then
-        -- Apply the corresponding layout when a window is manually moved to another screen.
         moveTypeByWindow[window:id()] = nil
 
         local config = get_app_config(window:application():name())
@@ -354,18 +353,12 @@ desktopLayoutSitter.appWatcher = hs.application.watcher.new(function(appName, ev
         end
 
         commons.logger.debug(MODULE_NAME,
-            'The activated event is triggered for app "'
-                .. appName
-                .. '" window "'
-                .. window:title()
-                .. '" ('
-                .. window:id()
-                .. ').'
+            'The activated event is triggered for app "' .. appName .. '" window "' .. window:title() .. '" (' .. window:id() .. ').'
         )
 
         previousScreenByWindow[window:id()] = window:screen():getUUID()
 
-        apply_layout(window, generate_layout(config, window:screen(), eventType))
+        apply_layout_debounced(window, generate_layout(config, window:screen(), eventType))
     end)
 end)
 

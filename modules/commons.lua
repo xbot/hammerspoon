@@ -12,7 +12,7 @@ commons.logger = {}
 
 local config_file = '~/.hammerspoon/data/Config.json'
 local config_file_template = '~/.hammerspoon/data/initConfig.json'
-local version = 'v0.4.0'
+local version = 'v0.4.1'
 
 local LOG_LEVELS = { error = 1, warn = 2, info = 3, debug = 4, verbose = 5 }
 
