@@ -128,6 +128,7 @@ function copyOmniFocusSensibleInfo() {
 本配置包含一个统一的外观管理器（`modules/appearance_manager.lua`），它会监听 macOS 的系统外观变化（深色/浅色模式），并自动为支持的应用切换主题。
 
 目前已支持：
+- **Hammerspoon Console**：自动切换控制台的深色/浅色主题。
 - **kitty 终端**：自动切换 `light.conf` 和 `dark.conf` 主题。
 - **Neovim**：通过 `nvr` 命令远程控制 Neovim 切换主题。
 

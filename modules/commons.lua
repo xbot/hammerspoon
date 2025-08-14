@@ -12,7 +12,7 @@ commons.logger = {}
 
 local config_file = '~/.hammerspoon/data/Config.json'
 local config_file_template = '~/.hammerspoon/data/initConfig.json'
-local version = 'v0.3.0'
+local version = 'v0.4.0'
 
 local LOG_LEVELS = { error = 1, warn = 2, info = 3, debug = 4, verbose = 5 }
 
@@ -193,7 +193,7 @@ local function open_color_picker()
     hs.openConsole(true)
     color_dialog.show()
     color_dialog.mode('RGB')
-    color_dialog.callback(function(a, b) 
+    color_dialog.callback(function(a, b)
         if b then
             hs.closeConsole()
         end
@@ -203,7 +203,7 @@ end
 
 -- Lifecycle Functions
 function commons:start()
-    hs.console.clearConsole()    
+    hs.console.clearConsole()
     -- Register commons module itself for logging.
     commons.logger.registerModule(MODULE_NAME)
 

@@ -130,6 +130,7 @@ This configuration includes a centralized logging system to facilitate troublesh
 This configuration includes a unified appearance manager (`modules/appearance_manager.lua`) that listens for macOS system appearance changes (Dark/Light Mode) and automatically switches themes for supported applications.
 
 Currently supported:
+- **Hammerspoon Console**: Automatically switches between dark/light themes for the console.
 - **kitty Terminal**: Automatically switches between `light.conf` and `dark.conf` themes.
 - **Neovim**: Remotely controls Neovim to switch its theme via the `nvr` command.
 
