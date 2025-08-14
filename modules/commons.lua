@@ -12,7 +12,7 @@ commons.logger = {}
 
 local config_file = '~/.hammerspoon/data/Config.json'
 local config_file_template = '~/.hammerspoon/data/initConfig.json'
-local version = 'v0.2.0'
+local version = 'v0.3.0'
 
 local LOG_LEVELS = { error = 1, warn = 2, info = 3, debug = 4, verbose = 5 }
 
@@ -101,8 +101,14 @@ end
 
 function commons.logger.registerModule(name)
     if not loggers[name] then
-        loggers[MODULE_NAME].d("Registering module: " .. name)
+        -- First, create the logger for the new module so it definitely exists.
         loggers[name] = hs.logger.new(name, 'info')
+
+        -- Now, we can safely use the 'commons' logger (if it exists) to log the registration.
+        if loggers[MODULE_NAME] then
+            loggers[MODULE_NAME].d("Registered module: " .. name)
+        end
+
         rebuild_main_menu()
     end
 end

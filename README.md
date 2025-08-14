@@ -123,9 +123,21 @@ function copyOmniFocusSensibleInfo() {
     }
     ```
 
-### 终端主题自动切换
+### 统一外观管理器
 
-自动检测系统外观模式变化，为 kitty 终端切换相应的主题配置。
+本配置包含一个统一的外观管理器（`modules/appearance_manager.lua`），它会监听 macOS 的系统外观变化（深色/浅色模式），并自动为支持的应用切换主题。
+
+目前已支持：
+- **kitty 终端**：自动切换 `light.conf` 和 `dark.conf` 主题。
+- **Neovim**：通过 `nvr` 命令远程控制 Neovim 切换主题。
+
+#### Neovim 集成要求
+为了让 Neovim 主题切换生效，您需要：
+1.  在您的 Neovim 配置文件（如 `.vimrc`）中添加主题切换的 Lua 函数。
+2.  安装 `neovim-remote` (nvr) 并设置别名。
+3.  如果 `nvr` 的可执行文件不在标准路径下，您可以在 `modules/appearance_manager.lua` 文件顶部的 `nvr_executable_path` 变量中指定其绝对路径。
+
+此模块是可扩展的，未来可以方便地加入对其他应用（如 VS Code）的控制。
 
 ### Noizio 自动控制器
 

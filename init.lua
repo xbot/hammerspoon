@@ -36,8 +36,8 @@ omnifocus:start()
 local noizioWatcher = require('modules/noizio')
 noizioWatcher:start()
 
-local kittyAppearanceSwitcher = require('modules/kitty_appearance_switcher')
-kittyAppearanceSwitcher:start()
+local appearanceManager = require('modules/appearance_manager')
+appearanceManager:start()
 
 local desktopLayoutSitter = require('modules/desktop_layout')
 desktopLayoutSitter:start()

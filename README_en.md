@@ -125,9 +125,21 @@ This configuration includes a centralized logging system to facilitate troublesh
 
 * **Log Level Control**: Through the Hammerspoon menu bar icon -> `Debug Log Levels` submenu, you can dynamically switch the log level (`info` or `debug`) for each module. This helps in viewing more detailed debug information when needed without being overwhelmed by unnecessary messages.
 
-### Automatic Theme Switching for Terminal
+### Unified Appearance Manager
 
-Automatically detects changes in the system's appearance mode and switches the theme for the kitty terminal accordingly.
+This configuration includes a unified appearance manager (`modules/appearance_manager.lua`) that listens for macOS system appearance changes (Dark/Light Mode) and automatically switches themes for supported applications.
+
+Currently supported:
+- **kitty Terminal**: Automatically switches between `light.conf` and `dark.conf` themes.
+- **Neovim**: Remotely controls Neovim to switch its theme via the `nvr` command.
+
+#### Neovim Integration Requirements
+For the Neovim theme switching to work, you need to:
+1.  Add the theme-switching Lua function to your Neovim configuration file (e.g., `.vimrc`).
+2.  Install `neovim-remote` (nvr) and set up the shell alias.
+3.  If the `nvr` executable is not in a standard PATH, you can specify its absolute path in the `nvr_executable_path` variable at the top of the `modules/appearance_manager.lua` file.
+
+This module is extensible, allowing for easy integration with other applications (like VS Code) in the future.
 
 ### Automatic Noizio Control
 
