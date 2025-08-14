@@ -1,25 +1,12 @@
 # Hammerspoon Configuration
 
+- en [English](README_en.md)
+- zh_CN [简体中文](README.md)
+
 ## Usage
 
 1. Install [Hammerspoon](http://www.hammerspoon.org/)
 2. `git clone https://github.com/sugood/hammerspoon.git ~/.hammerspoon`
-
-## Modifier keys
-|           |  Key           |
-| --------- | -------------- |
-| <kbd>⇧</kbd> | Shift       |
-| <kbd>⌃</kbd> | Control   	 |
-| <kbd>⌥</kbd> | Option 	 |
-| <kbd>⌘</kbd> | Command   	 |
-
-## Reference code
-https://github.com/sugood/hammerspoon
-
-## Language
-
-- en [English](README_en.md)
-- zh_CN [简体中文](README.md)
 
 ## Features
 
@@ -76,27 +63,17 @@ To disable the `desktop_layout` module, comment it out.
 
 ### Launch Application
 
-* <kbd>⌥</kbd> + <kbd>1</kbd> `OmniFocus`
-* <kbd>⌥</kbd> + <kbd>2</kbd> `Google Keep`
-* <kbd>⌥</kbd> + <kbd>3</kbd> `Sequel Ace`
-* <kbd>⌥</kbd> + <kbd>A</kbd> `Arc`
-* <kbd>⌥</kbd> + <kbd>C</kbd> `Visual Studio Code`
-* <kbd>⌥</kbd> + <kbd>D</kbd> `Dash`
-* <kbd>⌥</kbd> + <kbd>C</kbd> `EuDic`
-* <kbd>⌥</kbd> + <kbd>F</kbd> `Firefox`
-* <kbd>⌥</kbd> + <kbd>G</kbd> `Telegram`
-* <kbd>⌥</kbd> + <kbd>I</kbd> `Anki`
-* <kbd>⌥</kbd> + <kbd>J</kbd> `Safari`
-* <kbd>⌥</kbd> + <kbd>K</kbd> `kitty`
-* <kbd>⌥</kbd> + <kbd>L</kbd> `Logseq`
-* <kbd>⌥</kbd> + <kbd>M</kbd> `Mail or Spark`
-* <kbd>⌥</kbd> + <kbd>N</kbd> `Notion`
-* <kbd>⌥</kbd> + <kbd>O</kbd> `Microsoft Outlook`
-* <kbd>⌥</kbd> + <kbd>P</kbd> `PhpStorm`
-* <kbd>⌥</kbd> + <kbd>Q</kbd> `Activity Monitor`
-* <kbd>⌥</kbd> + <kbd>S</kbd> `Slack`
-* <kbd>⌥</kbd> + <kbd>V</kbd> `Vivaldi`
-* <kbd>⌥</kbd> + <kbd>Z</kbd> `MacVim`
+You can quickly launch or switch to a specific application using the `⌥` + `shortcut` combination. The core logic is: if the application is not running or not in the foreground, it will be launched or brought to the front; if it is already the frontmost application, it will be hidden.
+
+All keybindings are defined in the `applist` variable within the `modules/launcher.lua` file. You can easily add, remove, or modify these shortcuts to suit your needs.
+
+**For example, based on the default configuration:**
+
+*   `⌥` + `A` launches/switches to `Arc`
+*   `⌥` + `C` launches/switches to `Visual Studio Code`
+*   `⌥` + `K` launches/switches to `kitty`
+
+...and so on. Please modify the configuration file directly to best suit your workflow.
 
 ### JSON format
 
@@ -141,3 +118,25 @@ Toggle it in the menubar item.
         ["game.exe"] = "PC Keyboard",
     }
     ```
+
+### Debugging
+
+This configuration includes a centralized logging system to facilitate troubleshooting.
+
+* **Log Level Control**: Through the Hammerspoon menu bar icon -> `Debug Log Levels` submenu, you can dynamically switch the log level (`info` or `debug`) for each module. This helps in viewing more detailed debug information when needed without being overwhelmed by unnecessary messages.
+
+### Automatic Theme Switching for Terminal
+
+Automatically detects changes in the system's appearance mode and switches the theme for the kitty terminal accordingly.
+
+### Automatic Noizio Control
+
+This module monitors audio device changes to automatically manage the Noizio application.
+
+- **Functionality**: When all specified headphones (e.g., AirPods) are disconnected, the script will automatically quit the Noizio application. This prevents ambient sounds from playing through the computer's speakers when headphones are not in use.
+- **Configuration**: The list of headphone device names that trigger this behavior can be modified in the `earphones` variable within the `modules/noizio.lua` file.
+
+## Credits
+The initial version of this configuration was referenced from the following project:
+
+- https://github.com/sugood/hammerspoon

@@ -1,25 +1,12 @@
 # Hammerspoon 配置
 
+- en [English](README_en.md)
+- zh_CN [简体中文](README.md)
+
 ## 使用方法
 
 1. 安装 [Hammerspoon](http://www.hammerspoon.org/)
 2. `git clone https://github.com/xbot/hammerspoon.git ~/.hammerspoon`
-
-## 快捷键图标
-|              | 键位           |
-| ---------    | -------------- |
-| <kbd>⇧</kbd> | Shift          |
-| <kbd>⌃</kbd> | Control        |
-| <kbd>⌥</kbd> | Option         |
-| <kbd>⌘</kbd> | Command        |
-
-## 代码参考
-https://github.com/sugood/hammerspoon
-
-## 语言切换
-
-- en [English](README_en.md)
-- zh_CN [简体中文](README.md)
 
 ## 功能
 
@@ -72,29 +59,25 @@ https://github.com/sugood/hammerspoon
 
 * <kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd> + <kbd>L</kbd> 锁屏
 
+### 调试
+
+此配置包含一个集中的日志系统，方便进行问题排查。
+
+* **日志级别控制**: 通过 Hammerspoon 菜单栏图标 -> `Debug Log Levels` 子菜单，可以为每个模块动态切换日志级别（`info` 或 `debug`）。这有助于在需要时查看更详细的调试信息，而不会被不必要的信息淹没。
+
 ### 快速启动
 
-* <kbd>⌥</kbd> + <kbd>1</kbd> `OmniFocus`
-* <kbd>⌥</kbd> + <kbd>2</kbd> `Google Keep`
-* <kbd>⌥</kbd> + <kbd>3</kbd> `Sequel Ace`
-* <kbd>⌥</kbd> + <kbd>A</kbd> `Arc`
-* <kbd>⌥</kbd> + <kbd>C</kbd> `Visual Studio Code`
-* <kbd>⌥</kbd> + <kbd>D</kbd> `Dash`
-* <kbd>⌥</kbd> + <kbd>C</kbd> `EuDic`
-* <kbd>⌥</kbd> + <kbd>F</kbd> `Firefox`
-* <kbd>⌥</kbd> + <kbd>G</kbd> `Telegram`
-* <kbd>⌥</kbd> + <kbd>I</kbd> `Anki`
-* <kbd>⌥</kbd> + <kbd>J</kbd> `Safari`
-* <kbd>⌥</kbd> + <kbd>K</kbd> `kitty`
-* <kbd>⌥</kbd> + <kbd>L</kbd> `Logseq`
-* <kbd>⌥</kbd> + <kbd>M</kbd> `Mail or Spark`
-* <kbd>⌥</kbd> + <kbd>N</kbd> `Notion`
-* <kbd>⌥</kbd> + <kbd>O</kbd> `Microsoft Outlook`
-* <kbd>⌥</kbd> + <kbd>P</kbd> `PhpStorm`
-* <kbd>⌥</kbd> + <kbd>Q</kbd> `Activity Monitor`
-* <kbd>⌥</kbd> + <kbd>S</kbd> `Slack`
-* <kbd>⌥</kbd> + <kbd>V</kbd> `Vivaldi`
-* <kbd>⌥</kbd> + <kbd>Z</kbd> `MacVim`
+通过 `⌥` + `快捷键` 的组合，可以快速启动或切换到指定的应用程序。这个功能的核心逻辑是，如果应用程序未运行或不在前台，则启动或将其置于前台；如果它已在最前台，则隐藏它。
+
+所有的快捷键绑定都在 `modules/launcher.lua` 文件的 `applist` 变量中定义。您可以根据自己的需要轻松地添加、删除或修改这些快捷键。
+
+**例如，根据默认配置：**
+
+*   `⌥` + `A` 启动/切换 `Arc`
+*   `⌥` + `C` 启动/切换 `Visual Studio Code`
+*   `⌥` + `K` 启动/切换 `kitty`
+
+...等等。请直接修改配置文件以获得最适合您的工作流。
 
 ### JSON格式化
 
@@ -139,3 +122,19 @@ function copyOmniFocusSensibleInfo() {
         ["game.exe"] = "PC Keyboard",
     }
     ```
+
+### 终端主题自动切换
+
+自动检测系统外观模式变化，为 kitty 终端切换相应的主题配置。
+
+### Noizio 自动控制器
+
+此模块会监控音频设备的变化，实现对 Noizio 应用的自动管理。
+
+- **功能**：当所有预设的耳机（如 AirPods）断开连接时，脚本会自动关闭 Noizio 应用。这可以避免在没有使用耳机时，环境音通过电脑扬声器播放出来。
+- **配置**：需要自动关闭 Noizio 的耳机设备名称列表，可以在 `modules/noizio.lua` 文件的 `earphones` 变量中进行修改。
+
+## 致谢
+本配置的初始版本参考了以下项目：
+
+- https://github.com/sugood/hammerspoon
