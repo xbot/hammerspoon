@@ -12,7 +12,7 @@ commons.logger = {}
 
 local config_file = '~/.hammerspoon/data/Config.json'
 local config_file_template = '~/.hammerspoon/data/initConfig.json'
-local version = 'v0.4.1'
+local version = 'v0.5.0'
 
 local LOG_LEVELS = { error = 1, warn = 2, info = 3, debug = 4, verbose = 5 }
 
@@ -28,8 +28,43 @@ end
 -- --- Logger Implementation ---
 local loggers = {}
 
+local rebuild_main_menu -- Forward declaration
+
+local function toggle_log_level(name)
+    loggers[MODULE_NAME].d("Toggling log level for " .. name)
+    local currentLevelNum = loggers[name].getLogLevel()
+    local newLevelNum
+    local newLevelName
+
+    if currentLevelNum == LOG_LEVELS.info then
+        newLevelNum = LOG_LEVELS.debug
+        newLevelName = "debug"
+    else
+        newLevelNum = LOG_LEVELS.info
+        newLevelName = "info"
+    end
+
+    -- 1. Set it on the logger object
+    loggers[name].setLogLevel(newLevelNum)
+
+    -- 2. Persist the setting
+    if commons.settings[1] and not commons.settings[1].logLevels then
+        commons.settings[1].logLevels = {}
+    end
+    if commons.settings[1] then
+        commons.settings[1].logLevels[name] = newLevelName
+        hs.json.write(commons.settings, config_file, true, true)
+        loggers[MODULE_NAME].d("Saved log level for " .. name .. " as " .. newLevelName)
+    else
+        loggers[MODULE_NAME].e("Cannot save log level, commons.settings not initialized.")
+    end
+
+    -- 3. Rebuild the menu to reflect the change
+    rebuild_main_menu()
+end
+
 -- This function is local as it should only be called from within this module
-local function rebuild_main_menu()
+rebuild_main_menu = function()
     -- Since this function can be called from within a logger function,
     -- we need to access the 'commons' logger directly to avoid loops.
     -- Also handle case where commons logger is not yet initialized or doesn't have debug method
@@ -61,13 +96,7 @@ local function rebuild_main_menu()
             title = name .. " (" .. levelStr .. ")",
             checked = (levelNum == LOG_LEVELS.debug),
             fn = function()
-                loggers[MODULE_NAME].d("Toggling log level for " .. name)
-                if loggers[name].getLogLevel() == LOG_LEVELS.info then
-                    loggers[name].setLogLevel(LOG_LEVELS.debug)
-                else
-                    loggers[name].setLogLevel(LOG_LEVELS.info)
-                end
-                rebuild_main_menu() -- Rebuild the whole menu to reflect the change
+                toggle_log_level(name)
             end
         })
     end
@@ -103,6 +132,18 @@ function commons.logger.registerModule(name)
     if not loggers[name] then
         -- First, create the logger for the new module so it definitely exists.
         loggers[name] = hs.logger.new(name, 'info')
+
+        -- Apply any persisted log level from settings
+        if commons.settings[1] and commons.settings[1].logLevels and commons.settings[1].logLevels[name] then
+            local savedLevelName = commons.settings[1].logLevels[name]
+            local savedLevelNum = LOG_LEVELS[savedLevelName]
+            if savedLevelNum then
+                loggers[name].setLogLevel(savedLevelNum)
+                if loggers[MODULE_NAME] then
+                    loggers[MODULE_NAME].d("Applied saved log level '" .. savedLevelName .. "' for module: " .. name)
+                end
+            end
+        end
 
         -- Now, we can safely use the 'commons' logger (if it exists) to log the registration.
         if loggers[MODULE_NAME] then
@@ -217,6 +258,11 @@ function commons:start()
 
     if hs.json.read(config_file) ~= nil then
         commons.settings = hs.json.read(config_file)
+    end
+
+    -- Ensure the logLevels table exists in the settings
+    if commons.settings[1] and not commons.settings[1].logLevels then
+        commons.settings[1].logLevels = {}
     end
 
     -- Create the menubar item
