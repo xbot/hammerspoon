@@ -135,12 +135,12 @@ end
 -- Move window to designated position
 local function apply_layout(window, layout)
     if not layout then
-        commons.logger.debug(MODULE_NAME, 'Leave window "' .. window:title() .. '" (' .. window:id() .. ') stay put.')
+        commons.logger.debug(MODULE_NAME, 'Leave window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. window:id() .. ') stay put.')
         return
     end
 
     if moveTypeByWindow[window:id()] == 'manually' then
-        commons.logger.debug(MODULE_NAME, 'Window "' .. window:title() .. '" is ignored for being manually resized.')
+        commons.logger.debug(MODULE_NAME, 'Skipping layout for window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. window:id() .. ') as it was previously placed manually.')
         return
     end
 
@@ -153,18 +153,67 @@ local function apply_layout(window, layout)
         end
     end
     if shouldExclude then
-        commons.logger.debug(MODULE_NAME, 'Window "' .. window:title() .. '" is ignored by the "excludeWindows" patterns.')
+        commons.logger.debug(MODULE_NAME, 'Window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. window:id() .. ') is ignored by the "excludeWindows" patterns.')
         return
     end
 
-    local targetScreen = window:screen()
-    if layout.screen then
-        targetScreen = layout.screen
+    -- A layout is needed if the window's current state violates any of the defined constraints (screen, center, frame).
+    -- Each constraint is checked independently below.
+    local needsLayout = false
+    local winFrame = window:frame()
+    local targetScreen = layout.screen or window:screen()
+
+    -- Check screen constraint
+    if layout.screen and window:screen() ~= layout.screen then
+        needsLayout = true
+    end
+
+    -- Check center constraint
+    if layout.center then
+        -- For centered layouts, we calculate the ideal centered frame based on the target size
+        -- (derived from layout.frame or the window's current size) and compare it to the actual frame.
+        local screen = targetScreen:fullFrame()
+        local targetSize
+
+        if layout.frame then
+            local targetRect = screen * layout.frame
+            targetSize = hs.geometry.size(targetRect.w, targetRect.h)
+        else
+            targetSize = hs.geometry.size(winFrame.w, winFrame.h)
+        end
+
+        local targetFrame = hs.geometry.rect(
+            screen.x + (screen.w - targetSize.w) / 2,
+            screen.y + (screen.h - targetSize.h) / 2,
+            targetSize.w,
+            targetSize.h
+        )
+
+        if not hs.geometry.equals(hs.geometry.floor(winFrame), hs.geometry.floor(targetFrame)) then
+            needsLayout = true
+        end
+    end
+
+    -- Check frame constraint (only if not centered, as center takes precedence for positioning)
+    if not layout.center and layout.frame then
+        local screenFrame = targetScreen:frame()
+        local targetFrame = screenFrame * layout.frame
+        -- Use floor to truncate fractional pixels, matching system behavior
+        if not hs.geometry.equals(hs.geometry.floor(winFrame), hs.geometry.floor(targetFrame)) then
+            needsLayout = true
+        end
+    end
+
+    if not needsLayout then
+        commons.logger.debug(MODULE_NAME, 'Window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. window:id() .. ') is already in the correct layout. Ignoring.')
+        return
     end
 
     commons.logger.debug(MODULE_NAME,
-        'Apply layout for window "' .. window:title() .. '" (' .. window:id() .. ') on screen "' .. targetScreen:getUUID() .. '": `' .. hs.inspect(layout, { newline = '', indent = ' ' }) .. '` .'
+        'Apply layout for window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. window:id() .. ') on screen "' .. targetScreen:getUUID() .. '": `' .. hs.inspect(layout, { newline = '', indent = ' ' }) .. '` .'
     )
+
+    moveTypeByWindow[window:id()] = 'automatically'
 
     if layout.frame then
         window:move(layout.frame, targetScreen, true)
@@ -177,8 +226,6 @@ local function apply_layout(window, layout)
     end
 
     previousScreenByWindow[window:id()] = window:screen():getUUID()
-
-    moveTypeByWindow[window:id()] = 'automatically'
 
     commons.logger.debug(MODULE_NAME, 'Placed ' .. window:application():name() .. ' (' .. window:title() .. ') to the '
             .. hs.inspect(layout.frame, { newline = '', indent = ' ' })
@@ -276,7 +323,7 @@ wf:subscribe(hs.window.filter.windowCreated, function(window, appName, event)
         return
     end
 
-    commons.logger.debug(MODULE_NAME, 'New window "' .. window:title() .. '" (' .. window:id() .. ') created for ' .. appName)
+    commons.logger.debug(MODULE_NAME, 'New window "' .. appName .. ' - ' .. window:title() .. '" (' .. window:id() .. ') created')
 
     previousScreenByWindow[window:id()] = window:screen():getUUID()
 
@@ -286,9 +333,6 @@ wf:subscribe(hs.window.filter.windowCreated, function(window, appName, event)
     end
 
     apply_layout_debounced(window, generate_layout(config, window:screen(), event))
-
-    -- The windowMoved event won't be triggered here.
-    moveTypeByWindow[window:id()] = nil
 end)
 
 wf:subscribe(hs.window.filter.windowMoved, function(window, appName, event)
@@ -301,7 +345,7 @@ wf:subscribe(hs.window.filter.windowMoved, function(window, appName, event)
     end
 
     commons.logger.debug(MODULE_NAME,
-        'Window ' .. window:title() .. ' (' .. window:id() .. ') has been moved ' .. moveTypeByWindow[window:id()] .. '.'
+        'Window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. window:id() .. ') has been moved ' .. moveTypeByWindow[window:id()] .. '.'
     )
 
     if moveTypeByWindow[window:id()] == 'automatically' then
@@ -320,7 +364,7 @@ wf:subscribe(hs.window.filter.windowMoved, function(window, appName, event)
             return
         end
 
-        commons.logger.debug(MODULE_NAME, 'Window ' .. window:title() .. ' has been moved to screen: ' .. window:screen():name())
+        commons.logger.debug(MODULE_NAME, 'Window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. window:id() .. ') has been moved to screen: ' .. window:screen():name())
 
         apply_layout(window, generate_layout(config, window:screen(), event))
 
@@ -329,6 +373,7 @@ wf:subscribe(hs.window.filter.windowMoved, function(window, appName, event)
 end)
 
 wf:subscribe(hs.window.filter.windowDestroyed, function(window)
+    commons.logger.debug(MODULE_NAME, 'Window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. window:id() .. ') has been destroyed.')
     moveTypeByWindow[window:id()] = nil
     previousScreenByWindow[window:id()] = nil
 end)
