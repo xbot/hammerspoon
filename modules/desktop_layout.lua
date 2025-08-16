@@ -5,16 +5,24 @@ local commons = require('modules/commons')
 local MODULE_NAME = 'desktop_layout'
 commons.logger.registerModule(MODULE_NAME)
 
+-- Move type constants for windows
+local MOVE_TYPE_MANUALLY      = 'manually'
+local MOVE_TYPE_AUTOMATICALLY = 'automatically'
+local MOVE_TYPE_IGNORED       = 'ignored'
+
 local desktopLayoutSitter = {}
 
 local previousScreenByWindow = {}
 local moveTypeByWindow = {}
 
--- Initiate previousScreenByWindow on startup
+-- Initiate previousScreenByWindow and moveTypeByWindow on startup.
+-- Windows that already exist at startup are marked as 'ignored' so that
+-- the layout rules are not applied to them automatically.
 for _, app in ipairs(hs.application.runningApplications()) do
     for _, window in ipairs(app:allWindows()) do
         if window:isStandard() and not window:isMinimized() then
             previousScreenByWindow[window:id()] = window:screen():getUUID()
+            moveTypeByWindow[window:id()] = MOVE_TYPE_IGNORED
         end
     end
 end
@@ -139,8 +147,11 @@ local function apply_layout(window, layout)
         return
     end
 
-    if moveTypeByWindow[window:id()] == 'manually' then
-        commons.logger.debug(MODULE_NAME, 'Skipping layout for window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. window:id() .. ') as it was previously placed manually.')
+    local windowId = window:id()
+    local moveType = moveTypeByWindow[windowId]
+
+    if moveType == MOVE_TYPE_MANUALLY or moveType == MOVE_TYPE_IGNORED then
+        commons.logger.debug(MODULE_NAME, 'Skipping layout for window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. windowId .. ') as it was ' .. (moveType == MOVE_TYPE_IGNORED and 'pre-existing' or 'previously placed manually') .. '.')
         return
     end
 
@@ -340,35 +351,43 @@ wf:subscribe(hs.window.filter.windowMoved, function(window, appName, event)
         return
     end
 
-    if not moveTypeByWindow[window:id()] then
-        moveTypeByWindow[window:id()] = 'manually'
+    local windowId = window:id()
+    local currentMoveType = moveTypeByWindow[windowId]
+
+    -- Determine the new move type based on the previous state
+    if currentMoveType == MOVE_TYPE_AUTOMATICALLY then
+        -- If the window was moved automatically by the script, clear the flag.
+        moveTypeByWindow[windowId] = nil
+    else
+        -- If the window's move type is 'manually', 'ignored', or nil,
+        -- it means it was moved by the user. Update the state to 'manually'.
+        moveTypeByWindow[windowId] = MOVE_TYPE_MANUALLY
     end
 
+    -- Log the state change
     commons.logger.debug(MODULE_NAME,
-        'Window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. window:id() .. ') has been moved ' .. moveTypeByWindow[window:id()] .. '.'
+        'Window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. windowId .. ') has been moved. Previous state: ' .. (currentMoveType or 'nil') .. ', New state: ' .. (moveTypeByWindow[windowId] or 'nil')
     )
 
-    if moveTypeByWindow[window:id()] == 'automatically' then
-        moveTypeByWindow[window:id()] = nil
-    end
-
-    local prevScreenUUID = previousScreenByWindow[window:id()]
+    local prevScreenUUID = previousScreenByWindow[windowId]
     local newScreenUUID = window:screen():getUUID()
 
     -- Apply the corresponding layout when a window is manually moved to another screen.
+    -- This also applies if an 'ignored' window is moved.
     if newScreenUUID ~= prevScreenUUID then
-        moveTypeByWindow[window:id()] = nil
+        -- Clear the move type as it's now being actively managed again.
+        moveTypeByWindow[windowId] = nil
 
         local config = get_app_config(window:application():name())
         if not config then
             return
         end
 
-        commons.logger.debug(MODULE_NAME, 'Window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. window:id() .. ') has been moved to screen: ' .. window:screen():name())
+        commons.logger.debug(MODULE_NAME, 'Window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. windowId .. ') has been moved to screen: ' .. window:screen():name())
 
         apply_layout(window, generate_layout(config, window:screen(), event))
 
-        previousScreenByWindow[window:id()] = newScreenUUID
+        previousScreenByWindow[windowId] = newScreenUUID
     end
 end)
 
