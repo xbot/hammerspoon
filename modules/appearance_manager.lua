@@ -64,15 +64,27 @@ local function switchKittyTheme(isDark)
 end
 
 local function switchNeovimTheme(isDark)
-    local command = string.format('%s -s --nostart -c "lua vim.g.is_dark = %s; _G.SwitchTheme()"', nvr_executable_path, tostring(isDark))
-    hs.task.new("/bin/bash", function(exitCode, stdOut, stdErr)
-        if exitCode == 0 then
-            commons.logger.info(MODULE_NAME, "Successfully sent theme switch command to Neovim.")
-        else
-            commons.logger.debug(MODULE_NAME, "Could not send command to Neovim (maybe no instance is running?): " .. (stdErr or ""))
+    hs.task.new(nvr_executable_path, function(exitCode, stdOut, stdErr)
+        if exitCode ~= 0 or not stdOut or stdOut == "" then
+            commons.logger.debug(MODULE_NAME, "No nvim servers found or error listing servers: " .. (stdErr or ""))
+            return
         end
-    end, {"-c", command}):start()
+
+        for socketPath in stdOut:gmatch("[^\n]+") do
+            if socketPath ~= "" then
+                local command = string.format('%s --servername "%s" --nostart -c "lua vim.g.is_dark = %s; _G.SwitchTheme()"', nvr_executable_path, socketPath, tostring(isDark))
+                hs.task.new("/bin/bash", function(innerExitCode, innerStdOut, innerStdErr) 
+                    if innerExitCode == 0 then
+                        commons.logger.info(MODULE_NAME, "Successfully sent theme switch command to Neovim instance at " .. socketPath)
+                    else
+                        commons.logger.debug(MODULE_NAME, "Failed to send command to Neovim instance at " .. socketPath .. ": " .. (innerStdErr or ""))
+                    end
+                end, {"-c", command}):start()
+            end
+        end
+    end, {"--serverlist"}):start()
 end
+
 
 -- --- Core Manager Logic ---
 
