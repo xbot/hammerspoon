@@ -23,21 +23,21 @@ local function toggle_application(app_names)
     local app = nil
     local app_name = nil
 
-    commons.logger.debug(MODULE_NAME, "Toggling application:", app_names)
+    commons.logger.debug(MODULE_NAME, 'Toggling application:', app_names)
 
     if type(app_names) == 'table' then
         for i = 1, #app_names do
             app = appfinder.appFromName(app_names[i])
             if app ~= nil then
                 app_name = app_names[i]
-                commons.logger.debug(MODULE_NAME, "Found installed app in list:", app_name)
+                commons.logger.debug(MODULE_NAME, 'Found installed app in list:', app_name)
                 break
             end
         end
 
         if not app_name then
             app_name = app_names[1]
-            commons.logger.debug(MODULE_NAME, "No installed app found in list, defaulting to first entry:", app_name)
+            commons.logger.debug(MODULE_NAME, 'No installed app found in list, defaulting to first entry:', app_name)
         end
     elseif type(app_names) == 'string' then
         app = appfinder.appFromName(app_names)
@@ -48,17 +48,17 @@ local function toggle_application(app_names)
     end
 
     if not app or not app:mainWindow() then
-        commons.logger.debug(MODULE_NAME, "Launching or focusing", app_name)
+        commons.logger.debug(MODULE_NAME, 'Launching or focusing', app_name)
         application.launchOrFocus(app_name)
         return
     else
         local mainwin = app:mainWindow()
 
         if mainwin == window.focusedWindow() then
-            commons.logger.debug(MODULE_NAME, "Hiding", app_name)
+            commons.logger.debug(MODULE_NAME, 'Hiding', app_name)
             mainwin:application():hide()
         else
-            commons.logger.debug(MODULE_NAME, "Activating", app_name)
+            commons.logger.debug(MODULE_NAME, 'Activating', app_name)
             mainwin:application():activate(true)
             mainwin:application():unhide()
             mainwin:focus()
@@ -81,7 +81,7 @@ local applist = {
     { shortcut = '5', appname = 'Gemini' },
     { shortcut = '6', appname = 'Kimi' },
     { shortcut = 'A', appname = 'Arc' },
-    { shortcut = 'C', appname = 'Visual Studio Code' },
+    { shortcut = 'C', appname = 'Comet' },
     { shortcut = 'D', appname = 'Doubao' },
     { shortcut = 'E', appname = 'EuDic' },
     { shortcut = 'G', appname = 'Telegram' },
@@ -93,6 +93,7 @@ local applist = {
     { shortcut = 'N', appname = 'Notion' },
     { shortcut = 'O', appname = 'Obsidian' },
     { shortcut = 'Q', appname = 'Activity Monitor' },
+    { shortcut = 'T', appname = 'ChatGPT Atlas' },
     { shortcut = 'V', appname = 'Neovide' },
     { shortcut = 'X', appname = 'XiaoHongShu' },
 }
@@ -112,21 +113,6 @@ end
 
 if defaultBrowser ~= nil then
     table.insert(applist, { shortcut = 'B', appname = defaultBrowser })
-end
-
---[[
-   [ Map key T to the default twitter client.
-   ]]
-local defaultTwitterClient = nil
-
-if machine_name == 'MacBook Air' then
-    defaultTwitterClient = 'Twitter'
-else
-    defaultTwitterClient = 'Twitter'
-end
-
-if defaultTwitterClient ~= nil then
-    table.insert(applist, { shortcut = 'T', appname = defaultTwitterClient })
 end
 
 -- Do mappings.
