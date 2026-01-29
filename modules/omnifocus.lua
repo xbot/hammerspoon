@@ -13,21 +13,23 @@ local hotkeys = {}
 
 -- Interpolate table values into a string
 -- From http://lua-users.org/wiki/StringInterpolation
-local function interp(s, tab) 
-    return (s:gsub('($%b{})', function(w) return tab[w:sub(3, -2)] or w end))
+local function interp(s, tab)
+    return (s:gsub('($%b{})', function(w)
+        return tab[w:sub(3, -2)] or w
+    end))
 end
 
 -- Read a whole file into a string
 local function slurp(path)
     local f = assert(io.open(path))
-    local s = f:read("*a")
+    local s = f:read('*a')
     f:close()
     return s
 end
 
 local function open_omnifocus_edit_dialog(lines)
-    commons.logger.debug(MODULE_NAME, "Opening OmniFocus edit dialog.")
-    local module_dir = debug.getinfo(1, "S").source:sub(2):match("(.*/)")
+    commons.logger.debug(MODULE_NAME, 'Opening OmniFocus edit dialog.')
+    local module_dir = debug.getinfo(1, 'S').source:sub(2):match('(.*/)')
     local template_file = module_dir .. '../templates/add_webpage_to_omnifocus.tpl'
     local text = slurp(template_file)
     local data = {
@@ -39,17 +41,17 @@ local function open_omnifocus_edit_dialog(lines)
 end
 
 function omnifocus:start()
-    commons.logger.info(MODULE_NAME, "Starting OmniFocus module")
+    commons.logger.info(MODULE_NAME, 'Starting OmniFocus module')
     hs.loadSpoon('SendToOmniFocus')
 
     spoon.SendToOmniFocus:bindHotkeys({
         send_to_omnifocus = { { 'ctrl', 'alt', 'cmd' }, 'O' },
     })
-    commons.logger.debug(MODULE_NAME, "Bound SendToOmniFocus hotkey.")
+    commons.logger.debug(MODULE_NAME, 'Bound SendToOmniFocus hotkey.')
 
     spoon.SendToOmniFocus:registerApplication('Arc', {
         as_scriptfile = os.getenv('HOME') .. '/.hammerspoon/templates/add_arc_webpage_to_omnifocus.applescript',
-        itemname = 'tab'
+        itemname = 'tab',
     })
     spoon.SendToOmniFocus:registerApplication('Brave Browser', {
         apptype = 'chromeapp',
@@ -63,8 +65,15 @@ function omnifocus:start()
         apptype = 'chromeapp',
         itemname = 'tab',
     })
-    commons.logger.debug(MODULE_NAME, "Registered applications with SendToOmniFocus spoon.")
-
+    spoon.SendToOmniFocus:registerApplication('ChatGPT Atlas', {
+        apptype = 'chromeapp',
+        itemname = 'tab',
+    })
+    spoon.SendToOmniFocus:registerApplication('Comet', {
+        apptype = 'chromeapp',
+        itemname = 'tab',
+    })
+    commons.logger.debug(MODULE_NAME, 'Registered applications with SendToOmniFocus spoon.')
 
     local dk = require('modules/decoration_keys')
     local hotkey = require('hs.hotkey')
@@ -77,7 +86,7 @@ function omnifocus:start()
             return
         end
 
-        commons.logger.debug(MODULE_NAME, "Jira format hotkey triggered with text:", selectedText)
+        commons.logger.debug(MODULE_NAME, 'Jira format hotkey triggered with text:', selectedText)
         local formattedText
         if string.match(selectedText, '^Review:%s%[DEV%-%d+%]%s.*%s%-%sJira$') then
             local ticketNumber = string.match(selectedText, '^Review:%s%[(DEV%-%d+)%]%s.*%s%-%sJira$')
@@ -96,48 +105,48 @@ function omnifocus:start()
 
     -- Press ctrl+opt+cmd+. to open the quick entry dialog for logging.
     hotkeys.log_chore = hotkey.bind(dk.hyper, '.', function()
-        commons.logger.debug(MODULE_NAME, "Log chore hotkey triggered.")
+        commons.logger.debug(MODULE_NAME, 'Log chore hotkey triggered.')
         hs.urlevent.openURL('omnifocus:///add?project=Chore&context=Journal&completed=now')
     end)
 
     -- Press ctrl+opt+cmd+, to open the quick entry dialog for today's chore.
     hotkeys.today_chore = hotkey.bind(dk.hyper, ',', function()
-        commons.logger.debug(MODULE_NAME, "Today chore hotkey triggered.")
+        commons.logger.debug(MODULE_NAME, 'Today chore hotkey triggered.')
         hs.urlevent.openURL('omnifocus:///add?project=Chore&context=Today')
     end)
 
     -- Press ctrl+opt+cmd+/ to open the quick entry dialog for bucket list.
     hotkeys.bucket_list = hotkey.bind(dk.hyper, '/', function()
-        commons.logger.debug(MODULE_NAME, "Bucket list hotkey triggered.")
+        commons.logger.debug(MODULE_NAME, 'Bucket list hotkey triggered.')
         hs.urlevent.openURL('omnifocus:///add?project=Bucket%20List&context=Shopping,Today')
     end)
 
     -- Start pasteboard watcher if enabled
     if commons.getOption('watch_omnifocus_sensible_data', 'off') == 'on' then
-        commons.logger.info(MODULE_NAME, "Starting OmniFocus pasteboard watcher.")
+        commons.logger.info(MODULE_NAME, 'Starting OmniFocus pasteboard watcher.')
         local pasteboard = require('hs.pasteboard')
-        watcher = pasteboard.watcher.new(function(pasteboard_content) 
-            if type(pasteboard_content) ~= "string" then
+        watcher = pasteboard.watcher.new(function(pasteboard_content)
+            if type(pasteboard_content) ~= 'string' then
                 return -- Not a string, do nothing
             end
             local lines = {}
-            for line in string.gmatch(pasteboard_content, "[^\r\n]+") do
+            for line in string.gmatch(pasteboard_content, '[^\r\n]+') do
                 table.insert(lines, line)
             end
 
             if #lines == 3 and lines[1] == '#omnifocus_sensible' then
-                commons.logger.debug(MODULE_NAME, "OmniFocus sensible data detected in pasteboard.")
+                commons.logger.debug(MODULE_NAME, 'OmniFocus sensible data detected in pasteboard.')
                 open_omnifocus_edit_dialog(lines)
             end
         end)
         watcher:start()
     else
-        commons.logger.info(MODULE_NAME, "OmniFocus pasteboard watcher is disabled in settings.")
+        commons.logger.info(MODULE_NAME, 'OmniFocus pasteboard watcher is disabled in settings.')
     end
 end
 
 function omnifocus:stop()
-    commons.logger.info(MODULE_NAME, "Stopping OmniFocus module")
+    commons.logger.info(MODULE_NAME, 'Stopping OmniFocus module')
     if watcher then
         watcher:stop()
         watcher = nil
