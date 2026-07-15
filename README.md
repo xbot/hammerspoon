@@ -140,6 +140,12 @@ function copyOmniFocusSensibleInfo() {
 
 此模块是可扩展的，未来可以方便地加入对其他应用（如 VS Code）的控制。
 
+### 专注模式外观联动
+
+`modules/focus_mode.lua` 会监听 macOS 专注模式的变化。当“夜间”模式开启时，它会将系统切换为深色外观并通过 `nightlight` 开启夜览；退出该模式时，则切换为浅色外观并关闭夜览。
+
+该功能需要安装 `nightlight`，并为 Hammerspoon 授予“完全磁盘访问权限”，以读取当前专注模式。目标专注模式名称和 `nightlight` 路径可以在模块顶部修改。
+
 ### Noizio 自动控制器
 
 此模块会监控音频设备的变化，实现对 Noizio 应用的自动管理。

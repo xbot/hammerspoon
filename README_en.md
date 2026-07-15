@@ -142,6 +142,12 @@ For the Neovim theme switching to work, you need to:
 
 This module is extensible, allowing for easy integration with other applications (like VS Code) in the future.
 
+### Focus Mode Appearance Integration
+
+`modules/focus_mode.lua` watches for macOS Focus mode changes. When the “夜间” Focus mode is enabled, it switches the system to Dark Mode and turns on Night Shift through `nightlight`. When that Focus mode is disabled, it switches to Light Mode and turns Night Shift off.
+
+This feature requires `nightlight` and Full Disk Access for Hammerspoon so it can read the current Focus mode. The target Focus mode name and `nightlight` path can be changed at the top of the module.
+
 ### Automatic Noizio Control
 
 This module monitors audio device changes to automatically manage the Noizio application.

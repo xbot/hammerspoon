@@ -41,6 +41,9 @@ noizioWatcher:start()
 local appearanceManager = require('modules/appearance_manager')
 appearanceManager:start()
 
+local focusModeWatcher = require('modules/focus_mode')
+focusModeWatcher:start()
+
 local desktopLayoutSitter = require('modules/desktop_layout')
 desktopLayoutSitter:start()
 
