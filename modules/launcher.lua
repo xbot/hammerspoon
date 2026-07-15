@@ -82,7 +82,7 @@ local applist = {
     { shortcut = '6', appname = 'Kimi' },
     { shortcut = 'A', appname = 'Arc' },
     { shortcut = 'C', appname = 'Comet' },
-    { shortcut = 'D', appname = 'Doubao' },
+    { shortcut = 'D', appname = 'Discord' },
     { shortcut = 'E', appname = 'EuDic' },
     { shortcut = 'G', appname = 'Telegram' },
     { shortcut = 'I', appname = 'Anki' },
@@ -106,7 +106,7 @@ local machine_name = hs.host.localizedName()
 local defaultBrowser = nil
 
 if string.find(machine_name, 'MacBook Air') or string.find(machine_name, 'iMac') then
-    defaultBrowser = 'Dia'
+    defaultBrowser = 'Brave Browser'
 else
     defaultBrowser = 'Google Chrome'
 end
