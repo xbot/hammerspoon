@@ -93,7 +93,6 @@ local applist = {
     { shortcut = 'N', appname = 'Notion' },
     { shortcut = 'O', appname = 'Obsidian' },
     { shortcut = 'Q', appname = 'Activity Monitor' },
-    { shortcut = 'T', appname = 'ChatGPT Atlas' },
     { shortcut = 'V', appname = 'Neovide' },
     { shortcut = 'X', appname = 'XiaoHongShu' },
 }

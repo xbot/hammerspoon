@@ -65,10 +65,6 @@ function omnifocus:start()
         apptype = 'chromeapp',
         itemname = 'tab',
     })
-    spoon.SendToOmniFocus:registerApplication('ChatGPT Atlas', {
-        apptype = 'chromeapp',
-        itemname = 'tab',
-    })
     spoon.SendToOmniFocus:registerApplication('Comet', {
         apptype = 'chromeapp',
         itemname = 'tab',
