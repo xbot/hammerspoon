@@ -6,9 +6,9 @@ local MODULE_NAME = 'desktop_layout'
 commons.logger.registerModule(MODULE_NAME)
 
 -- Move type constants for windows
-local MOVE_TYPE_MANUALLY      = 'manually'
+local MOVE_TYPE_MANUALLY = 'manually'
 local MOVE_TYPE_AUTOMATICALLY = 'automatically'
-local MOVE_TYPE_IGNORED       = 'ignored'
+local MOVE_TYPE_IGNORED = 'ignored'
 
 local desktopLayoutSitter = {}
 
@@ -44,7 +44,30 @@ local function get_secondary_screen()
 end
 
 -- Application layouts
--- Set *.layouts.*.frame = nil to ignore resizing windows on that screen.
+-- Set a legacy *.layouts.*.frame = nil, or a match rule's `frame = false`, to
+-- move a window without resizing it.
+--
+-- A layout in `layouts` can also use a `match` list to target a particular
+-- kind of window. Every condition must match. Matching rules are selected by,
+-- in order: `priority` (higher wins; default: 0), the sum of condition
+-- `weight`s (higher wins; default: 1 per condition), then their order in this
+-- list (earlier wins). `weight` lets a condition contribute more than the
+-- default one point without requiring special handling for its field. For
+-- example:
+-- {
+--     priority = 10,
+--     match = {
+--         { field = 'screenUUID', equals = 'XXXXXX-XXXXXX-XXXXXX-XXXXXX' },
+--         { field = 'title', pattern = '^Preferences$', weight = 2 },
+--     },
+--     frame = hs.geometry.rect(0.5, 0, 0.5, 1),
+-- }
+--
+-- Supported fields are: appName, bundleID, title, screen, and screenUUID.
+-- `pattern` uses Lua patterns, not PCRE regular expressions. For screen
+-- matching, prefer screenUUID; `screen` values are compared by UUID.
+-- The existing { screen = ... } and { screenUUID = ... } layout forms remain
+-- supported; they are treated as one-condition, screen-specific rules.
 local function init_desktop_layout()
     return {
         -- Center of the primary screen
@@ -80,8 +103,10 @@ local function init_desktop_layout()
             screen = hs.screen.primaryScreen(),
             frame = hs.geometry.rect(0, 0, 0.33, 1),
             layouts = {
-                -- { screen = get_secondary_screen(), frame = hs.geometry.rect(0, 0, 1, 0.5) },
-                -- {screenUUID = 'XXXXXX-XXXXXX-XXXXXX-XXXXXX', frame = hs.geometry.rect(0, 0, 1, 0.5)}
+                -- {
+                --     match = { { field = 'screenUUID', equals = 'XXXXXX-XXXXXX-XXXXXX-XXXXXX' } },
+                --     frame = hs.geometry.rect(0, 0, 1, 0.5),
+                -- },
             },
         },
         {
@@ -96,8 +121,18 @@ local function init_desktop_layout()
             frame = hs.geometry.rect(0, 0, 0.33, 1),
             excludeWindows = { 'Log In' },
             layouts = {
-                { screenUUID = '37D8832A-2D66-02CA-B9F7-8F30A301B230', frame = hs.geometry.rect(0, 0, 0.5, 1) },
-                { screenUUID = '5305866C-4D51-2169-0857-D6964E3302DB', frame = hs.geometry.rect(0, 0, 0.33, 1) },
+                {
+                    match = { { field = 'title', pattern = '^闪动FlashX$' } },
+                    frame = hs.geometry.rect(0.33, 0, 0.67, 1),
+                },
+                {
+                    match = { { field = 'screenUUID', equals = '37D8832A-2D66-02CA-B9F7-8F30A301B230' } },
+                    frame = hs.geometry.rect(0, 0, 0.5, 1),
+                },
+                {
+                    match = { { field = 'screenUUID', equals = '5305866C-4D51-2169-0857-D6964E3302DB' } },
+                    frame = hs.geometry.rect(0, 0, 0.33, 1),
+                },
             },
         },
         -- The right two thirds of the primary screen.
@@ -106,8 +141,14 @@ local function init_desktop_layout()
             screen = hs.screen.primaryScreen(),
             frame = hs.geometry.rect(0.33, 0, 0.67, 1),
             layouts = {
-                { screenUUID = '37D8832A-2D66-02CA-B9F7-8F30A301B230', frame = nil },
-                { screenUUID = '5305866C-4D51-2169-0857-D6964E3302DB', frame = hs.geometry.rect(0.33, 0, 0.67, 1) },
+                {
+                    match = { { field = 'screenUUID', equals = '37D8832A-2D66-02CA-B9F7-8F30A301B230' } },
+                    frame = false,
+                },
+                {
+                    match = { { field = 'screenUUID', equals = '5305866C-4D51-2169-0857-D6964E3302DB' } },
+                    frame = hs.geometry.rect(0.33, 0, 0.67, 1),
+                },
             },
             excludeWindows = { '.* Preferences' },
         },
@@ -143,7 +184,16 @@ end
 -- Move window to designated position
 local function apply_layout(window, layout)
     if not layout then
-        commons.logger.debug(MODULE_NAME, 'Leave window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. window:id() .. ') stay put.')
+        commons.logger.debug(
+            MODULE_NAME,
+            'Leave window "'
+                .. window:application():name()
+                .. ' - '
+                .. window:title()
+                .. '" ('
+                .. window:id()
+                .. ') stay put.'
+        )
         return
     end
 
@@ -151,7 +201,18 @@ local function apply_layout(window, layout)
     local moveType = moveTypeByWindow[windowId]
 
     if moveType == MOVE_TYPE_MANUALLY or moveType == MOVE_TYPE_IGNORED then
-        commons.logger.debug(MODULE_NAME, 'Skipping layout for window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. windowId .. ') as it was ' .. (moveType == MOVE_TYPE_IGNORED and 'pre-existing' or 'previously placed manually') .. '.')
+        commons.logger.debug(
+            MODULE_NAME,
+            'Skipping layout for window "'
+                .. window:application():name()
+                .. ' - '
+                .. window:title()
+                .. '" ('
+                .. windowId
+                .. ') as it was '
+                .. (moveType == MOVE_TYPE_IGNORED and 'pre-existing' or 'previously placed manually')
+                .. '.'
+        )
         return
     end
 
@@ -164,7 +225,16 @@ local function apply_layout(window, layout)
         end
     end
     if shouldExclude then
-        commons.logger.debug(MODULE_NAME, 'Window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. window:id() .. ') is ignored by the "excludeWindows" patterns.')
+        commons.logger.debug(
+            MODULE_NAME,
+            'Window "'
+                .. window:application():name()
+                .. ' - '
+                .. window:title()
+                .. '" ('
+                .. window:id()
+                .. ') is ignored by the "excludeWindows" patterns.'
+        )
         return
     end
 
@@ -175,7 +245,7 @@ local function apply_layout(window, layout)
     local targetScreen = layout.screen or window:screen()
 
     -- Check screen constraint
-    if layout.screen and window:screen() ~= layout.screen then
+    if layout.screen and window:screen():getUUID() ~= layout.screen:getUUID() then
         needsLayout = true
     end
 
@@ -216,12 +286,32 @@ local function apply_layout(window, layout)
     end
 
     if not needsLayout then
-        commons.logger.debug(MODULE_NAME, 'Window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. window:id() .. ') is already in the correct layout. Ignoring.')
+        commons.logger.debug(
+            MODULE_NAME,
+            'Window "'
+                .. window:application():name()
+                .. ' - '
+                .. window:title()
+                .. '" ('
+                .. window:id()
+                .. ') is already in the correct layout. Ignoring.'
+        )
         return
     end
 
-    commons.logger.debug(MODULE_NAME,
-        'Apply layout for window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. window:id() .. ') on screen "' .. targetScreen:getUUID() .. '": `' .. hs.inspect(layout, { newline = '', indent = ' ' }) .. '` .'
+    commons.logger.debug(
+        MODULE_NAME,
+        'Apply layout for window "'
+            .. window:application():name()
+            .. ' - '
+            .. window:title()
+            .. '" ('
+            .. window:id()
+            .. ') on screen "'
+            .. targetScreen:getUUID()
+            .. '": `'
+            .. hs.inspect(layout, { newline = '', indent = ' ' })
+            .. '` .'
     )
 
     moveTypeByWindow[window:id()] = 'automatically'
@@ -238,9 +328,16 @@ local function apply_layout(window, layout)
 
     previousScreenByWindow[window:id()] = window:screen():getUUID()
 
-    commons.logger.debug(MODULE_NAME, 'Placed ' .. window:application():name() .. ' (' .. window:title() .. ') to the '
+    commons.logger.debug(
+        MODULE_NAME,
+        'Placed '
+            .. window:application():name()
+            .. ' ('
+            .. window:title()
+            .. ') to the '
             .. hs.inspect(layout.frame, { newline = '', indent = ' ' })
-            .. ' of the ' .. targetScreen:name()
+            .. ' of the '
+            .. targetScreen:name()
     )
 end
 
@@ -269,34 +366,203 @@ local function get_app_config(appName)
     return nil
 end
 
-local function generate_layout(appConfig, screen, event)
+local function screens_are_equal(first, second)
+    return first ~= nil and second ~= nil and first:getUUID() == second:getUUID()
+end
+
+local function condition_matches(condition, context)
+    local value = context[condition.field]
+
+    if value == nil then
+        commons.logger.debug(MODULE_NAME, 'No context value for match field "' .. condition.field .. '".')
+        return false
+    end
+
+    if condition.equals ~= nil then
+        if condition.field == 'screen' then
+            return screens_are_equal(value, condition.equals)
+        end
+
+        return value == condition.equals
+    end
+
+    if condition.pattern ~= nil then
+        if type(value) ~= 'string' then
+            return false
+        end
+
+        local ok, match = pcall(string.match, value, condition.pattern)
+        if not ok then
+            commons.logger.debug(
+                MODULE_NAME,
+                'Invalid Lua pattern for match field "'
+                    .. condition.field
+                    .. '": '
+                    .. tostring(condition.pattern)
+                    .. '.'
+            )
+        end
+
+        return ok and match ~= nil
+    end
+
+    return false
+end
+
+local function get_rule_score(rule, context)
+    if type(rule.match) ~= 'table' then
+        return nil
+    end
+
+    if #rule.match == 0 then
+        commons.logger.debug(MODULE_NAME, 'Ignoring layout rule with an empty match list.')
+        return nil
+    end
+
+    local specificity = 0
+    for _, condition in ipairs(rule.match) do
+        if
+            type(condition) ~= 'table'
+            or type(condition.field) ~= 'string'
+            or not condition_matches(condition, context)
+        then
+            return nil
+        end
+
+        local weight = condition.weight == nil and 1 or tonumber(condition.weight)
+        if weight == nil or weight < 0 then
+            commons.logger.debug(
+                MODULE_NAME,
+                'Ignoring layout rule with invalid weight for match field "' .. condition.field .. '".'
+            )
+            return nil
+        end
+
+        specificity = specificity + weight
+    end
+
+    return {
+        priority = tonumber(rule.priority) or 0,
+        specificity = specificity,
+    }
+end
+
+local function is_better_rule(candidate, best)
+    if not best then
+        return true
+    end
+
+    if candidate.score.priority ~= best.score.priority then
+        return candidate.score.priority > best.score.priority
+    end
+
+    if candidate.score.specificity ~= best.score.specificity then
+        return candidate.score.specificity > best.score.specificity
+    end
+
+    return candidate.index < best.index
+end
+
+local function select_layout_rule(appConfig, window, screen)
+    if not appConfig.layouts then
+        return nil
+    end
+
+    local application = window:application()
+    local context = {
+        appName = application:name(),
+        bundleID = application:bundleID(),
+        title = window:title(),
+        screen = screen,
+        screenUUID = screen:getUUID(),
+    }
+    local best
+
+    for index, rule in ipairs(appConfig.layouts) do
+        local candidate
+
+        if rule.match ~= nil then
+            local score = get_rule_score(rule, context)
+            if score then
+                candidate = { rule = rule, score = score, index = index, legacy = false }
+            end
+        elseif
+            (rule.screen and screens_are_equal(rule.screen, screen))
+            or (rule.screenUUID and rule.screenUUID == context.screenUUID)
+        then
+            -- Preserve the old screen-specific layout behavior and let a
+            -- new, equally specific rule override it by being listed first.
+            candidate = {
+                rule = rule,
+                score = { priority = tonumber(rule.priority) or 0, specificity = 1 },
+                index = index,
+                legacy = true,
+            }
+        end
+
+        if candidate and is_better_rule(candidate, best) then
+            best = candidate
+        end
+    end
+
+    return best
+end
+
+local function generate_layout(appConfig, window, event)
+    local screen = window:screen()
     local layout = hs.fnutils.copy(appConfig)
 
     layout.fallback = nil
     layout.layouts = nil
 
-    -- Return the pre-defined layout for the current screen.
-    if appConfig.layouts then
-        for _, screenLayout in ipairs(appConfig.layouts) do
-            if
-                (screenLayout.screen and screenLayout.screen == screen)
-                or (screenLayout.screenUUID and screenLayout.screenUUID == screen:getUUID())
-            then
+    local selectedRule = select_layout_rule(appConfig, window, screen)
+    if selectedRule then
+        local rule = selectedRule.rule
+        if selectedRule.legacy then
+            -- Legacy rules use their screen selector as the target screen and
+            -- replace frame and center even when those values are nil.
+            layout.screen = screen
+            layout.frame = rule.frame
+            layout.center = rule.center
+        else
+            for key, value in pairs(rule) do
+                if key ~= 'match' and key ~= 'priority' and key ~= 'screenUUID' then
+                    -- `false` is an explicit nil sentinel for values such as
+                    -- `frame`: Lua does not retain a table field set to nil.
+                    if key == 'frame' and value == false then
+                        layout.frame = nil
+                    else
+                        layout[key] = value
+                    end
+                end
+            end
+
+            -- Match rules may set `screen` explicitly; otherwise use the
+            -- window's current screen, preserving existing layouts behavior.
+            if rule.screen == nil then
                 layout.screen = screen
-                layout.frame = screenLayout.frame
-                layout.center = screenLayout.center
-
-                commons.logger.debug(MODULE_NAME, 'Hit pre-defined layout on screen ' .. screen:name() .. '.')
-
-                return layout
             end
         end
+
+        commons.logger.debug(
+            MODULE_NAME,
+            'Hit layout rule on screen '
+                .. screen:name()
+                .. ' (priority '
+                .. selectedRule.score.priority
+                .. ', specificity '
+                .. selectedRule.score.specificity
+                .. ').'
+        )
+
+        return layout
     end
 
     if event == hs.window.filter.windowMoved or event == hs.application.watcher.activated then
         -- Return nil when the default screen is not nil and is not the current screen.
-        if appConfig.screen and appConfig.screen ~= screen then
-            commons.logger.debug(MODULE_NAME,
+        if appConfig.screen and not screens_are_equal(appConfig.screen, screen) then
+            commons.logger.debug(
+                MODULE_NAME,
                 'The window is activated or moved or resized on the non-default screen '
                     .. screen:name()
                     .. ', return nil for the layout.'
@@ -334,7 +600,10 @@ wf:subscribe(hs.window.filter.windowCreated, function(window, appName, event)
         return
     end
 
-    commons.logger.debug(MODULE_NAME, 'New window "' .. appName .. ' - ' .. window:title() .. '" (' .. window:id() .. ') created')
+    commons.logger.debug(
+        MODULE_NAME,
+        'New window "' .. appName .. ' - ' .. window:title() .. '" (' .. window:id() .. ') created'
+    )
 
     previousScreenByWindow[window:id()] = window:screen():getUUID()
 
@@ -344,7 +613,7 @@ wf:subscribe(hs.window.filter.windowCreated, function(window, appName, event)
         return
     end
 
-    apply_layout_debounced(window, generate_layout(config, window:screen(), event))
+    apply_layout_debounced(window, generate_layout(config, window, event))
 end)
 
 wf:subscribe(hs.window.filter.windowMoved, function(window, appName, event)
@@ -366,8 +635,18 @@ wf:subscribe(hs.window.filter.windowMoved, function(window, appName, event)
     end
 
     -- Log the state change
-    commons.logger.debug(MODULE_NAME,
-        'Window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. windowId .. ') has been moved. Previous state: ' .. (currentMoveType or 'nil') .. ', New state: ' .. (moveTypeByWindow[windowId] or 'nil')
+    commons.logger.debug(
+        MODULE_NAME,
+        'Window "'
+            .. window:application():name()
+            .. ' - '
+            .. window:title()
+            .. '" ('
+            .. windowId
+            .. ') has been moved. Previous state: '
+            .. (currentMoveType or 'nil')
+            .. ', New state: '
+            .. (moveTypeByWindow[windowId] or 'nil')
     )
 
     local prevScreenUUID = previousScreenByWindow[windowId]
@@ -384,16 +663,35 @@ wf:subscribe(hs.window.filter.windowMoved, function(window, appName, event)
             return
         end
 
-        commons.logger.debug(MODULE_NAME, 'Window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. windowId .. ') has been moved to screen: ' .. window:screen():name())
+        commons.logger.debug(
+            MODULE_NAME,
+            'Window "'
+                .. window:application():name()
+                .. ' - '
+                .. window:title()
+                .. '" ('
+                .. windowId
+                .. ') has been moved to screen: '
+                .. window:screen():name()
+        )
 
-        apply_layout(window, generate_layout(config, window:screen(), event))
+        apply_layout(window, generate_layout(config, window, event))
 
         previousScreenByWindow[windowId] = newScreenUUID
     end
 end)
 
 wf:subscribe(hs.window.filter.windowDestroyed, function(window)
-    commons.logger.debug(MODULE_NAME, 'Window "' .. window:application():name() .. ' - ' .. window:title() .. '" (' .. window:id() .. ') has been destroyed.')
+    commons.logger.debug(
+        MODULE_NAME,
+        'Window "'
+            .. window:application():name()
+            .. ' - '
+            .. window:title()
+            .. '" ('
+            .. window:id()
+            .. ') has been destroyed.'
+    )
     moveTypeByWindow[window:id()] = nil
     previousScreenByWindow[window:id()] = nil
 end)
@@ -417,13 +715,20 @@ desktopLayoutSitter.appWatcher = hs.application.watcher.new(function(appName, ev
             return
         end
 
-        commons.logger.debug(MODULE_NAME,
-            'The activated event is triggered for app "' .. appName .. '" window "' .. window:title() .. '" (' .. window:id() .. ').'
+        commons.logger.debug(
+            MODULE_NAME,
+            'The activated event is triggered for app "'
+                .. appName
+                .. '" window "'
+                .. window:title()
+                .. '" ('
+                .. window:id()
+                .. ').'
         )
 
         previousScreenByWindow[window:id()] = window:screen():getUUID()
 
-        apply_layout_debounced(window, generate_layout(config, window:screen(), eventType))
+        apply_layout_debounced(window, generate_layout(config, window, eventType))
     end)
 end)
 

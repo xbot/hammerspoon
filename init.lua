@@ -7,7 +7,7 @@ package.path = hs.configdir
     .. '/Spoons/?.spoon/init.lua;'
     .. package.path
 
-hs.console.consoleFont({name="Menlo", size=14})
+hs.console.consoleFont({ name = 'Menlo', size = 14 })
 
 -- Generate annotations for lua-language-server
 hs.loadSpoon('EmmyLua')
@@ -41,8 +41,8 @@ noizioWatcher:start()
 local appearanceManager = require('modules/appearance_manager')
 appearanceManager:start()
 
-local focusModeWatcher = require('modules/focus_mode')
-focusModeWatcher:start()
+-- local focusModeWatcher = require('modules/focus_mode')
+-- focusModeWatcher:start()
 
 local desktopLayoutSitter = require('modules/desktop_layout')
 desktopLayoutSitter:start()
@@ -50,4 +50,4 @@ desktopLayoutSitter:start()
 local karabinerProfileSwitcher = require('modules/karabiner')
 karabinerProfileSwitcher:start()
 
-hs.notify.show("Hammerspoon", "Hammerspoon loaded!", "")
+hs.notify.show('Hammerspoon', 'Hammerspoon loaded!', '')
