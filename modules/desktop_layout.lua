@@ -340,6 +340,7 @@ wf:subscribe(hs.window.filter.windowCreated, function(window, appName, event)
 
     local config = get_app_config(appName)
     if not config then
+        commons.logger.debug(MODULE_NAME, 'No layout configuration found for app "' .. appName .. '". Ignoring.')
         return
     end
 
