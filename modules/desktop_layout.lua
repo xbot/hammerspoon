@@ -110,7 +110,7 @@ local function init_desktop_layout()
             },
         },
         {
-            app = 'Twitter',
+            apps = { 'Twitter', 'USB File Manager' },
             screen = hs.screen.primaryScreen(),
             frame = hs.geometry.rect(0, 0, 0.33, 1),
             excludeWindows = { 'Tweet' },
