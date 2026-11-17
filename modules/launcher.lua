@@ -76,7 +76,7 @@ local applist = {
     -- { shortcut = 'Z', appname = 'MacVim' },
     { shortcut = '1', appname = 'OmniFocus' },
     { shortcut = '2', appname = 'ChatGPT' },
-    { shortcut = '3', appname = 'DeepSeek' },
+    { shortcut = '3', appname = 'Doubao' },
     { shortcut = '4', appname = 'Grok' },
     { shortcut = '5', appname = 'Gemini' },
     { shortcut = '6', appname = 'Kimi' },
